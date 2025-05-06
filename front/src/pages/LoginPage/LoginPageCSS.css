@@ -41,7 +41,10 @@
     border-radius: 20px;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.05);
   }
-  
+
+  .login-btn:focus{
+    outline: none;
+}
   .auth-right {
     width: 50%;
     display: flex;

@@ -1,0 +1,7 @@
+.main__input {
+
+}
+
+.main__input:focus-visible {
+    outline: none;
+}
