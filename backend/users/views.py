@@ -1,45 +1,58 @@
-from rest_framework import generics, status, serializers
+from rest_framework import viewsets, status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.validators import UniqueValidator
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import Course, Test, Question, Answer, TestResult, Achievement, UserAchievement
 from .serializers import (
     RegisterSerializer, CourseSerializer, CourseSubscribeSerializer,
     TestSerializer, TestResultSerializer, AchievementSerializer,
-    TestCreateSerializer
+    TestCreateSerializer, UserSerializer
 )
+from .api_config import StandardResultsSetPagination, CourseFilter, TestFilter
 
 User = get_user_model()
 
+class BaseAPIView(APIView):
+    """Базовый класс для API представлений с общей функциональностью"""
+    permission_classes = [IsAuthenticated]
+
+    def handle_exception(self, exc):
+        if isinstance(exc, ValidationError):
+            return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        if isinstance(exc, PermissionDenied):
+            return Response({'error': str(exc)}, status=status.HTTP_403_FORBIDDEN)
+        return super().handle_exception(exc)
+
 # Регистрация
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Профиль
-class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
-
+class ProfileView(BaseAPIView):
     def get(self, request):
-        user = request.user
-        return Response({
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "role": user.role,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "patronymic": user.patronymic,
-        })
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 # Курсы
-class CourseListCreateView(generics.ListCreateAPIView):
+class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = CourseFilter
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'title']
 
     def get_queryset(self):
         if self.request.user.role == 'teacher':
@@ -47,34 +60,30 @@ class CourseListCreateView(generics.ListCreateAPIView):
         return Course.objects.all()
 
     def perform_create(self, serializer):
+        if self.request.user.role != 'teacher':
+            raise PermissionDenied('Только преподаватели могут создавать курсы')
         serializer.save(teacher=self.request.user)
 
-class EnrollCourseView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, pk):
-        try:
-            course = Course.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return Response({'error': 'Course not found'}, status=404)
-
-        if request.user.role != 'student':
-            return Response({'error': 'Only students can enroll'}, status=403)
-
-        course.students.add(request.user)
-        return Response({'message': 'Enrolled successfully'})
-
-class MyCoursesView(generics.ListAPIView):
+class MyCoursesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'title']
 
     def get_queryset(self):
         return self.request.user.enrolled_courses.all()
 
 # Тесты
-class TestListView(generics.ListAPIView):
+class TestViewSet(viewsets.ModelViewSet):
     serializer_class = TestSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = TestFilter
+    search_fields = ['title']
+    ordering_fields = ['created_at', 'title']
 
     def get_queryset(self):
         course_id = self.request.query_params.get('course_id')
@@ -83,55 +92,61 @@ class TestListView(generics.ListAPIView):
             queryset = queryset.filter(course_id=course_id)
         return queryset
 
-class TestDetailView(generics.RetrieveAPIView):
-    queryset = Test.objects.all()
-    serializer_class = TestSerializer
+    def perform_create(self, serializer):
+        if self.request.user.role != 'teacher':
+            raise PermissionDenied('Только преподаватели могут создавать тесты')
+        serializer.save()
+
+class TestResultViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TestResultSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['completed_at', 'score_awarded']
 
-class TestCreateView(APIView):
+    def get_queryset(self):
+        return TestResult.objects.filter(student=self.request.user)
+
+class AchievementViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AchievementSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
 
-    def post(self, request):
-        if request.user.role != 'teacher':
-            return Response({'error': 'Only teachers can create tests.'}, status=403)
+    def get_queryset(self):
+        return Achievement.objects.filter(
+            userachievement__user=self.request.user
+        )
 
-        serializer = TestCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            test_data = serializer.validated_data
-            questions_data = test_data.pop('questions')
-
-            test = Test.objects.create(**test_data)
-
-            for q_data in questions_data:
-                answers = q_data.pop('answers')
-                question = Question.objects.create(test=test, **q_data)
-                for ans in answers:
-                    Answer.objects.create(question=question, **ans)
-
-            return Response({'message': 'Test created successfully'})
-        return Response(serializer.errors, status=400)
-
-# Прохождение теста
-class PassTestView(APIView):
-    permission_classes = [IsAuthenticated]
-
+# Дополнительные представления
+class EnrollCourseView(BaseAPIView):
     def post(self, request, pk):
-        user = request.user
+        course = get_object_or_404(Course, pk=pk)
+        
+        if request.user.role != 'student':
+            raise PermissionDenied('Только студенты могут записываться на курсы')
+        
+        if course.students.filter(id=request.user.id).exists():
+            raise ValidationError('Вы уже записаны на этот курс')
+        
+        course.students.add(request.user)
+        return Response({'message': 'Успешно записаны на курс'})
+
+class PassTestView(BaseAPIView):
+    def post(self, request, pk):
+        test = get_object_or_404(Test, pk=pk)
         data = request.data
         mode = data.get("mode")
         answers = data.get("answers", {})
 
-        try:
-            test = Test.objects.get(pk=pk)
-        except Test.DoesNotExist:
-            return Response({"error": "Тест не найден"}, status=404)
+        if TestResult.objects.filter(student=request.user, test=test).exists():
+            raise ValidationError('Вы уже проходили этот тест')
 
-        if TestResult.objects.filter(student=user, test=test).exists():
-            return Response({"error": "Вы уже проходили этот тест"}, status=400)
+        if not mode or mode not in ['fast', 'slow', 'normal']:
+            raise ValidationError('Неверный режим прохождения теста')
 
         base_time = test.time_limit_minutes * 60
-        multiplier = {"fast": 1.2, "slow": 0.8, "normal": 1.0}.get(mode, 1.0)
-        time_limit = int(base_time * {"fast": 0.8, "slow": 1.2, "normal": 1.0}.get(mode, 1.0))
+        multiplier = {"fast": 1.2, "slow": 0.8, "normal": 1.0}[mode]
+        time_limit = int(base_time * {"fast": 0.8, "slow": 1.2, "normal": 1.0}[mode])
 
         correct = 0
         for q_id, a_id in answers.items():
@@ -146,8 +161,9 @@ class PassTestView(APIView):
         score = int(test.points * multiplier * (correct / total))
         coins = int(test.coins * multiplier * (correct / total))
 
-        TestResult.objects.create(
-            test=test, student=user,
+        result = TestResult.objects.create(
+            test=test,
+            student=request.user,
             time_spent_seconds=time_limit,
             correct_answers=correct,
             mode=mode,
@@ -155,29 +171,15 @@ class PassTestView(APIView):
             coins_awarded=coins
         )
 
-        passed_count = TestResult.objects.filter(student=user).count()
+        # Проверка достижений
+        passed_count = TestResult.objects.filter(student=request.user).count()
         for achievement in Achievement.objects.filter(test_count_required__lte=passed_count):
-            UserAchievement.objects.get_or_create(user=user, achievement=achievement)
+            UserAchievement.objects.get_or_create(user=request.user, achievement=achievement)
 
         return Response({
             "correct": correct,
             "total": total,
             "score_awarded": score,
             "coins_awarded": coins,
-            "message": "Тест пройден"
+            "message": "Тест успешно пройден"
         })
-
-# Результаты и достижения
-class MyTestResultsView(generics.ListAPIView):
-    serializer_class = TestResultSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return TestResult.objects.filter(student=self.request.user)
-
-class MyAchievementsView(generics.ListAPIView):
-    serializer_class = AchievementSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return self.request.user.user_achievements.values_list('achievement', flat=True)
