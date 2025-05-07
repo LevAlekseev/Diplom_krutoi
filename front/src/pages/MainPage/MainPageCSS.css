@@ -1,0 +1,34 @@
+/* :root {
+    --font-family: 'Montserrat', sans-serif;
+    --second-family: 'Comfortaa', cursive;
+    --sidebar-bg: #6a4dff;
+    --content-bg: #eef8eb;
+  } */
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: var(--font-family);
+    background: var(--sidebar-bg);
+    display: flex;
+  }
+  
+  .layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+  }
+  
+ 
+  .logo {
+    color: white;
+    font-family: var(--second-family);
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+  }
+  

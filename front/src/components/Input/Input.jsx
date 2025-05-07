@@ -1,6 +1,16 @@
-import "./Input.css"
+import "./Input.css";
 
-function Input({ type, placeholder }) {
-    return <input className="main__input" type={type} placeholder={placeholder} />;
+function Input({ type, name, placeholder, value, onChange }) {
+    return (
+        <input
+            className="main__input"
+            type={type}
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+        />
+    );
 }
+
 export default Input;
