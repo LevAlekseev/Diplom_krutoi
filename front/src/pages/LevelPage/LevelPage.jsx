@@ -1,7 +1,21 @@
 import React from "react";
+import axios from "axios";
 import "./LevelPage.css";
 
 const LevelsPage = () => {
+  const handleLevelSelect = async (level) => {
+    try {
+      await axios.post("/api/choose-level", {
+        taskId: 123, // можно передавать динамически
+        level: level
+      });
+      console.log("Выбор отправлен:", level);
+      // Можно сделать редирект, оповещение, смену страницы и т.д.
+    } catch (error) {
+      console.error("Ошибка при отправке:", error);
+    }
+  };
+
   return (
     <div className="container">
       <div className="header-box">
@@ -11,32 +25,35 @@ const LevelsPage = () => {
 
       <div className="cards-wrapper">
         <div className="card easy">
-          {/* <img src="/image1.jpg" alt="Легкий" className="card-img" /> */}
           <div className="card-content">
             <p className="card-description">
               Найдите угол между высотой BN и биссектрисой BD. В треугольнике ABC углы A и C равны 40° и 60° соответственно.
             </p>
-            <button className="level-btn easy-btn">Легкий</button>
+            <button className="level-btn easy-btn" onClick={() => handleLevelSelect("easy")}>
+              Легкий
+            </button>
           </div>
         </div>
 
         <div className="card medium">
-          {/* <img src="/image2.jpg" alt="Средний" className="card-img" /> */}
           <div className="card-content">
             <p className="card-description">
               Найдите угол между высотой BN и биссектрисой BD. В треугольнике ABC углы A и C равны 40° и 60° соответственно.
             </p>
-            <button className="level-btn medium-btn">Средний</button>
+            <button className="level-btn medium-btn" onClick={() => handleLevelSelect("medium")}>
+              Средний
+            </button>
           </div>
         </div>
 
         <div className="card hard">
-          {/* <img src="/image3.jpg" alt="Сложный" className="card-img" /> */}
           <div className="card-content">
             <p className="card-description">
               Найдите угол между высотой BN и биссектрисой BD. В треугольнике ABC углы A и C равны 40° и 60° соответственно.
             </p>
-            <button className="level-btn hard-btn">Сложный</button>
+            <button className="level-btn hard-btn" onClick={() => handleLevelSelect("hard")}>
+              Сложный
+            </button>
           </div>
         </div>
       </div>
