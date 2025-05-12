@@ -39,10 +39,18 @@ class RegisterView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Профиль
-class ProfileView(BaseAPIView):
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        user = request.user
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        })
 
 # Курсы
 class CourseViewSet(viewsets.ModelViewSet):

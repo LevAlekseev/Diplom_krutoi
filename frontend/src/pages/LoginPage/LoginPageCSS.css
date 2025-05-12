@@ -70,6 +70,7 @@
     align-items: flex-start;
   }
   
+  form input[type="text"],
   form input[type="email"],
   form input[type="password"] {
     width: 320px;

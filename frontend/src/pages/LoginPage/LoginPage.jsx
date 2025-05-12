@@ -1,12 +1,16 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import "./LoginPageCSS.css";
 import Input from "../../components/Input/Input";
 import imgSrc from "../../assets/images/b1c78b52-6309-486f-a88f-8c3a1bd3944e.jpg";
 
 const LoginPage = () => {
-    const [formData, setFormData] = useState({ email: "", password: "", remember: false });
+    const [formData, setFormData] = useState({ username: "", password: "", remember: false });
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -18,16 +22,19 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+        setLoading(true);
+
         try {
-            const response = await axios.post("http://localhost:8000/api/login", {
-                email: formData.email,
-                password: formData.password,
+            await login({
+                username: formData.username,
+                password: formData.password
             });
-            console.log("Успешный вход:", response.data);
-            // можно сохранить токен и перейти на другую страницу
+            navigate('/dashboard');
         } catch (err) {
-            console.error(err);
-            setError("Неверная почта или пароль");
+            setError("Неверный логин или пароль");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -40,11 +47,12 @@ const LoginPage = () => {
                 <h1>Авторизация</h1>
                 <form onSubmit={handleSubmit}>
                     <Input
-                        type="email"
-                        name="email"
-                        placeholder="Почта"
-                        value={formData.email}
+                        type="text"
+                        name="username"
+                        placeholder="Логин"
+                        value={formData.username}
                         onChange={handleChange}
+                        style={{ width: '320px', height: '50px', marginBottom: '15px', padding: '0 15px', borderRadius: '10px', border: 'none', boxShadow: 'inset 0 4px 10px 0 rgba(0, 0, 0, 0.1)', background: '#f1f1f1', fontWeight: 600, fontSize: '16px', color: '#4f4f4f', textAlign: 'left', boxSizing: 'border-box' }}
                     />
                     <Input
                         type="password"
@@ -64,8 +72,13 @@ const LoginPage = () => {
                         <label htmlFor="remember">Запомнить меня</label>
                     </div>
                     {error && <p style={{ color: "red" }}>{error}</p>}
-                    <button type="submit" className="login-btn">Войти</button>
-                   
+                    <button 
+                        type="submit" 
+                        className="login-btn"
+                        disabled={loading}
+                    >
+                        {loading ? 'Вход...' : 'Войти'}
+                    </button>
                 </form>
             </div>
         </div>

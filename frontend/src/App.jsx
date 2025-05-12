@@ -1,10 +1,42 @@
-import LessonsPage from './pages/LessonsPage/LessonsPage';
-import LevelsPage from './pages/LevelPage/LevelPage';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage/LoginPage';
 import MainPage from './pages/MainPage/MainPage';
+import './App.css';
+
+// Компонент для защищенных маршрутов
+const ProtectedRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return <div>Загрузка...</div>;
+    }
+
+    if (!user) {
+        return <Navigate to="/login" />;
+    }
+
+    return children;
+};
 
 function App() {
-  // return <LoginPage />;
-  return <LevelsPage />;
+    return (
+        <Router>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <MainPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+            </Routes>
+        </Router>
+    );
 }
+
 export default App;

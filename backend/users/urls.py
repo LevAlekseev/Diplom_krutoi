@@ -13,12 +13,9 @@ router_v1.register(r'my-results', views.TestResultViewSet, basename='my-results'
 router_v1.register(r'my-achievements', views.AchievementViewSet, basename='my-achievements')
 
 urlpatterns = [
-    # API v1
-    path('api/v1/', include([
-        path('', include(router_v1.urls)),
-        path('register/', views.RegisterView.as_view(), name='register'),
-        path('profile/', views.ProfileView.as_view(), name='profile'),
-        path('courses/<int:pk>/enroll/', views.EnrollCourseView.as_view(), name='enroll-course'),
-        path('tests/<int:pk>/pass/', views.PassTestView.as_view(), name='pass-test'),
-    ])),
+    path('', include(router_v1.urls)),
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('courses/<int:pk>/enroll/', views.EnrollCourseView.as_view(), name='enroll-course'),
+    path('tests/<int:pk>/pass/', views.PassTestView.as_view(), name='pass-test'),
 ]
