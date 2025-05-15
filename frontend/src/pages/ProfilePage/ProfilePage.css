@@ -7,7 +7,6 @@
     background: #eef8eb;
     border-radius: 22px;
     padding: 30px;
-
   }
   
   .profile-card {
@@ -165,8 +164,10 @@
     background: var(--content-bg);
     border-radius: 22px;
     padding: 30px;
+    padding-bottom: 80px;
     overflow-y: auto;
-    gap: 15px;}
+    gap: 15px;
+  }
 
 /* Топ класса */
 .top-block {
@@ -267,6 +268,13 @@
     border-radius: 4px;
     padding: 4px 8px;
       font-family: var(--second-family);
+  }
+
+  .top-points {
+    margin-left: 16px;
+    font-family: var(--second-family);
+    font-size: 20px;
+    color: #333;
   }
 
   @media (max-width: 768px) {

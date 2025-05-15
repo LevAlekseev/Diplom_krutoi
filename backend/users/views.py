@@ -75,7 +75,7 @@ class MyCoursesViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['created_at', 'title']
 
     def get_queryset(self):
-        return self.request.user.enrolled_courses.all()
+        return Course.objects.filter(enrolled_courses__student=self.request.user)
 
 # Тесты
 class TestViewSet(viewsets.ModelViewSet):

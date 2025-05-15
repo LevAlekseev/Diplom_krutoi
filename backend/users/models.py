@@ -29,6 +29,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ("1А", "1А"), ("1Б", "1Б"), ("1В", "1В"),
         ("2А", "2А"), ("2Б", "2Б"), ("2В", "2В"),
     ], default="1А")
+    role = models.CharField(max_length=10, choices=[('student', 'Ученик'), ('teacher', 'Учитель')], default='student')
+    teacher_classes = models.ManyToManyField('SchoolClass', blank=True, related_name='teachers')
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
@@ -109,8 +111,14 @@ class UserAchievement(models.Model):
 
 class Enrollment(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='enrollments')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrolled_courses')
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.student} -> {self.course}"
+
+class SchoolClass(models.Model):
+    name = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.name

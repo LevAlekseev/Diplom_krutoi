@@ -1,25 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./MainPageCSS.css";
 import "./MainPageContentCSS.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import CourseCard from "../../components/CourseCard/CourseCard";
 import { useAuth } from "../../contexts/AuthContext";
+import { coursesAPI } from "../../services/api";
+
+const COURSE_COLOR_MAP = {
+  "Русский": "#9d7dfc",
+  "Математика": "#f48fb1",
+  "История": "#81d4fa",
+  "Биология": "#7986cb",
+  "Физика": "#c5e1a5",
+  "Химия": "#ef9a9a",
+  "География": "#ce93d8",
+  "Английский": "#81c784",
+  "Чтение": "#FFD700",
+  "Рисование": "#FFB347"
+};
 
 const MainPage = () => {
   const { user, loading } = useAuth();
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
 
-  const courses = [
-    { letter: "Р", name: "Русский", color: "#9d7dfc" },
-    { letter: "М", name: "Математика", color: "#f48fb1" },
-    { letter: "И", name: "История", color: "#81d4fa" },
-    { letter: "Б", name: "Биология", color: "#7986cb" },
-    { letter: "Ф", name: "Физика", color: "#c5e1a5" },
-    { letter: "Х", name: "Химия", color: "#ef9a9a" },
-    { letter: "Г", name: "География", color: "#ce93d8" },
-    { letter: "А", name: "Английский", color: "#81c784" },
-  ];
+  useEffect(() => {
+    coursesAPI.getMyCourses()
+      .then(res => {
+        const courseList = res.data.results || res.data;
+        setCourses(courseList.map(course => ({
+          letter: course.title[0].toUpperCase(),
+          name: course.title,
+          color: COURSE_COLOR_MAP[course.title] || "#9d7dfc",
+        })));
+      })
+      .catch(() => setCourses([]))
+      .finally(() => setCoursesLoading(false));
+  }, []);
 
-  if (loading || !user) return <div>Загрузка...</div>;
+  if (loading || !user || coursesLoading) return <div>Загрузка...</div>;
 
   return (
     <div className="layout">
@@ -46,7 +65,7 @@ const MainPage = () => {
           </div>
         </div>
         <div className="courses">
-          <h2>Все курсы</h2>
+          <h2>Мои курсы</h2>
           <div className="courses-grid">
             {courses.map(({ letter, name, color }) => (
               <CourseCard key={name} letter={letter} name={name} color={color} />

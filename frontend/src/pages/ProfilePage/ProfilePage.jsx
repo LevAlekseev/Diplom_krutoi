@@ -53,11 +53,17 @@ const ProfilePage = () => {
             <div className="diary-row" key={i}>
               <div className="diary-subject">{row.subject || "\u00A0"}</div>
               <div className="diary-grades">
-                {(row.grades || []).map((grade, j) => (
-                  <span className={`grade grade-${grade}`} key={j}>
-                    {grade}
-                  </span>
-                ))}
+                {(row.grades || []).map((grade, j) => {
+                  let mark = 2;
+                  if (grade >= 90) mark = 5;
+                  else if (grade >= 70) mark = 4;
+                  else if (grade >= 50) mark = 3;
+                  return (
+                    <span className={`grade grade-${mark}`} key={j}>
+                      {mark}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -68,10 +74,11 @@ const ProfilePage = () => {
             <div
               key={idx}
               className={`top-row ${rank <= 3 ? 'top-highlight top-'+rank : ''}`}
+              style={{ alignItems: 'center' }}
             >
               <span className="top-rank">{rank}</span>
               <span className="top-name">{name}</span>
-              <span className="top-points">{points}</span>
+              <span className="top-points" style={{ marginLeft: 16, fontFamily: 'Comfortaa, cursive', fontSize: 20 }}>{points}</span>
             </div>
           ))}
         </div>
