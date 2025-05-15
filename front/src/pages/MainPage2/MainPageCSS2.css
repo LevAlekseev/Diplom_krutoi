@@ -33,3 +33,24 @@
     text-align: center;
   }
   
+  @media (max-width: 768px) {
+    .layout {
+      background-color: #eef8eb;
+    }
+    
+    .content{
+
+      padding: 10px;
+      margin: 10px;
+
+    }
+
+    .course-avatar{
+      margin: 0px;
+    }
+
+    .course-card{
+      align-items: center;
+      justify-content: center;
+    }
+  }

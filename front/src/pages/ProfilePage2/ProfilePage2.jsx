@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import "./ProfilePage.css";
+import "./ProfilePage2.css";
 
 const ProfilePage = () => {
   // Заглушки для первоначального отображения
@@ -68,32 +68,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <h2 className="section-title">Достижения</h2>
-        <div className="stats-block">
-          {(stats || []).map(({ label, value }) => (
-            <div className="stat" key={label}>
-              <div className="stat-value">{value}</div>
-              <div className="stat-label">{label}</div>
-            </div>
-          ))}
-        </div>
-
-        <h2 className="section-title">Дневник</h2>
-        <div className="diary-block">
-          {(diary || []).map((row, i) => (
-            <div className="diary-row" key={i}>
-              <div className="diary-subject">{row.subject || "\u00A0"}</div>
-              <div className="diary-grades">
-                {(row.grades || []).map((grade, j) => (
-                  <span className={`grade grade-${grade}`} key={j}>
-                    {grade}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
+        
         <h2 className="section-title">Топ класса</h2>
         <div className="top-block">
           {topList.map(({ rank, name }, idx) => (
