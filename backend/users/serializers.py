@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
-from .models import Course, Test, Question, Answer, TestResult, Achievement
+from .models import Course, Test, Question, Answer, TestResult, Achievement, CustomUser, Enrollment
 
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'middle_name', 'role')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'middle_name', 'role', 'school_class')
         read_only_fields = ('id', 'role')
 
 # Регистрация
@@ -162,3 +162,62 @@ class TestCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Вопрос должен иметь хотя бы один правильный ответ")
         
         return test
+
+class ProfileSerializer(serializers.ModelSerializer):
+    coins = serializers.SerializerMethodField()
+    points = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    diary = serializers.SerializerMethodField()
+    top = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name', 'school_class',
+            'coins', 'points', 'rating', 'diary', 'top'
+        ]
+
+    def get_coins(self, obj):
+        return sum(r.coins_awarded for r in obj.test_results.all())
+
+    def get_points(self, obj):
+        return sum(r.score_awarded for r in obj.test_results.all())
+
+    def get_rating(self, obj):
+        classmates = CustomUser.objects.filter(school_class=obj.school_class)
+        classmates_points = [(u.id, sum(r.score_awarded for r in u.test_results.all())) for u in classmates]
+        classmates_points.sort(key=lambda x: x[1], reverse=True)
+        for idx, (uid, _) in enumerate(classmates_points, 1):
+            if uid == obj.id:
+                return f"{idx} / {len(classmates_points)}"
+        return f"- / {len(classmates_points)}"
+
+    def get_diary(self, obj):
+        # Для каждого курса, на который записан ученик, подтянуть оценки (результаты тестов)
+        diary = []
+        enrollments = Enrollment.objects.filter(student=obj)
+        for enroll in enrollments:
+            course = enroll.course
+            tests = Test.objects.filter(course=course)
+            grades = []
+            for test in tests:
+                result = TestResult.objects.filter(test=test, student=obj).first()
+                if result:
+                    grades.append(result.score_awarded)
+            diary.append({
+                'subject': course.title,
+                'grades': grades
+            })
+        return diary
+
+    def get_top(self, obj):
+        classmates = CustomUser.objects.filter(school_class=obj.school_class)
+        classmates_points = [
+            {
+                'rank': idx+1,
+                'name': f"{u.first_name} {u.last_name}",
+                'points': sum(r.score_awarded for r in u.test_results.all())
+            }
+            for idx, u in enumerate(sorted(classmates, key=lambda u: sum(r.score_awarded for r in u.test_results.all()), reverse=True))
+        ]
+        return classmates_points[:10]  # топ-10

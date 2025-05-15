@@ -8,7 +8,6 @@ import imgSrc from "../../assets/images/b1c78b52-6309-486f-a88f-8c3a1bd3944e.jpg
 const LoginPage = () => {
     const [formData, setFormData] = useState({ username: "", password: "", remember: false });
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -23,18 +22,15 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-        setLoading(true);
-
         try {
             await login({
                 username: formData.username,
-                password: formData.password
+                password: formData.password,
             });
-            navigate('/dashboard');
+            navigate("/main");
         } catch (err) {
-            setError("Неверный логин или пароль");
-        } finally {
-            setLoading(false);
+            console.error(err);
+            setError("Неверная почта, логин или пароль");
         }
     };
 
@@ -49,10 +45,9 @@ const LoginPage = () => {
                     <Input
                         type="text"
                         name="username"
-                        placeholder="Логин"
+                        placeholder="Логин или почта"
                         value={formData.username}
                         onChange={handleChange}
-                        style={{ width: '320px', height: '50px', marginBottom: '15px', padding: '0 15px', borderRadius: '10px', border: 'none', boxShadow: 'inset 0 4px 10px 0 rgba(0, 0, 0, 0.1)', background: '#f1f1f1', fontWeight: 600, fontSize: '16px', color: '#4f4f4f', textAlign: 'left', boxSizing: 'border-box' }}
                     />
                     <Input
                         type="password"
@@ -72,13 +67,7 @@ const LoginPage = () => {
                         <label htmlFor="remember">Запомнить меня</label>
                     </div>
                     {error && <p style={{ color: "red" }}>{error}</p>}
-                    <button 
-                        type="submit" 
-                        className="login-btn"
-                        disabled={loading}
-                    >
-                        {loading ? 'Вход...' : 'Войти'}
-                    </button>
+                    <button type="submit" className="login-btn">Войти</button>
                 </form>
             </div>
         </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Sidebar.css";
 import img1 from "../../assets/svg/interface-setting-cog--work-loading-cog-gear-settings-machine.svg";
 import img2 from "../../assets/svg/programming-script-1--language-programming-code.svg";
@@ -13,18 +14,18 @@ const Sidebar = () => {
                 <div className="logo">Класс</div>
                 <nav>
                     <ul>
-                        <li><a href="#">Главная</a></li>
-                        <li><a href="#">Курсы</a></li>
-                        <li><a href="#">Профиль</a></li>
-                        <li><a href="#">Настройки</a></li>
+                        <li><Link to="/main">Главная</Link></li>
+                        <li><Link to="/shop">Магазин</Link></li>
+                        <li><Link to="/profile">Профиль</Link></li>
+                        <li><Link to="/settings">Настройки</Link></li>
                     </ul>
                 </nav>
             </aside>
             <div className="mobile-nav">
-                <a href="#"><img src={img2} alt="Задания" /></a>
-                <a href="#"><img src={img3} alt="Курсы" /></a>
-                <a href="#"><img src={img4} alt="Профиль" /></a>
-                <a href="#"><img src={img1} alt="Настройки" /></a>
+                <Link to="/main"><img src={img2} alt="Задания" /></Link>
+                <Link to="/shop"><img src={img3} alt="Магазин" /></Link>
+                <Link to="/profile"><img src={img4} alt="Профиль" /></Link>
+                <Link to="/settings"><img src={img1} alt="Настройки" /></Link>
             </div>
         </>
     );

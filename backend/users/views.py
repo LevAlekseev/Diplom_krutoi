@@ -13,7 +13,7 @@ from .models import Course, Test, Question, Answer, TestResult, Achievement, Use
 from .serializers import (
     RegisterSerializer, CourseSerializer, CourseSubscribeSerializer,
     TestSerializer, TestResultSerializer, AchievementSerializer,
-    TestCreateSerializer, UserSerializer
+    TestCreateSerializer, UserSerializer, ProfileSerializer
 )
 from .api_config import StandardResultsSetPagination, CourseFilter, TestFilter
 
@@ -43,14 +43,8 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        return Response({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-        })
+        serializer = ProfileSerializer(request.user)
+        return Response(serializer.data)
 
 # Курсы
 class CourseViewSet(viewsets.ModelViewSet):

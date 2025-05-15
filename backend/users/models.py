@@ -25,6 +25,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     patronymic = models.CharField(max_length=150, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    school_class = models.CharField(max_length=10, choices=[
+        ("1А", "1А"), ("1Б", "1Б"), ("1В", "1В"),
+        ("2А", "2А"), ("2Б", "2Б"), ("2В", "2В"),
+    ], default="1А")
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
@@ -102,3 +106,11 @@ class UserAchievement(models.Model):
 
     def __str__(self):
         return f"{self.user.username} → {self.achievement.name}"
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student} -> {self.course}"

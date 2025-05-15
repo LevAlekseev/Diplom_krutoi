@@ -9,13 +9,19 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const username = localStorage.getItem('lastUsername');
         if (token) {
             authAPI.getProfile()
                 .then(response => {
                     setUser(response.data);
                 })
                 .catch(() => {
-                    localStorage.removeItem('token');
+                    // Если профиль не загрузился, но токен есть, сохраняем хотя бы username
+                    if (username) {
+                        setUser({ username });
+                    } else {
+                        localStorage.removeItem('token');
+                    }
                 })
                 .finally(() => {
                     setLoading(false);
@@ -30,9 +36,16 @@ export const AuthProvider = ({ children }) => {
         const { access, refresh } = response.data;
         localStorage.setItem('token', access);
         localStorage.setItem('refreshToken', refresh);
-        const profile = await authAPI.getProfile();
-        setUser(profile.data);
-        return profile.data;
+        localStorage.setItem('lastUsername', credentials.username);
+        try {
+            const profile = await authAPI.getProfile();
+            setUser(profile.data);
+            return profile.data;
+        } catch (e) {
+            // Если профиль не загрузился, сохраняем хотя бы username
+            setUser({ username: credentials.username });
+            return { username: credentials.username };
+        }
     };
 
     const register = async (data) => {

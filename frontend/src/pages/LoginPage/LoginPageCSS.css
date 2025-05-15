@@ -71,7 +71,6 @@
   }
   
   form input[type="text"],
-  form input[type="email"],
   form input[type="password"] {
     width: 320px;
     height: 50px;
@@ -186,7 +185,7 @@
       align-items: center;
     }
   
-    form input[type="email"],
+    form input[type="text"],
     form input[type="password"] {
       width: 280px;
       height: 40px;
