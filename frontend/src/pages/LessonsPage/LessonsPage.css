@@ -21,9 +21,9 @@
   .course-header .subject-avatar {
     width: 80px;
     height: 80px;
-    background: #9077f6;
+    color: rgba(255, 255, 255, 0.85);
     border-radius: 10px;
-    color: #ffe35c;
+
     font-size: 48px;
     font-weight: 700;
     display: flex;

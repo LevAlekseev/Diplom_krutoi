@@ -23,11 +23,15 @@ const LoginPage = () => {
         e.preventDefault();
         setError("");
         try {
-            await login({
+            const userData = await login({
                 username: formData.username,
                 password: formData.password,
             });
-            navigate("/main");
+            if (userData.role === 'teacher') {
+                navigate("/main2");
+            } else {
+                navigate("/main");
+            }
         } catch (err) {
             console.error(err);
             setError("Неверная почта, логин или пароль");

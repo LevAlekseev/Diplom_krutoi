@@ -28,12 +28,14 @@ export const coursesAPI = {
     getAll: () => api.get('/courses/'),
     getMyCourses: () => api.get('/my-courses/'),
     enroll: (courseId) => api.post(`/courses/${courseId}/enroll/`),
+    getById: (id) => api.get(`/courses/${id}/`),
 };
 
 export const testsAPI = {
     getAll: () => api.get('/tests/'),
     passTest: (testId, data) => api.post(`/tests/${testId}/pass/`, data),
     getMyResults: () => api.get('/my-results/'),
+    getByCourse: (courseId) => api.get(`/tests/?course_id=${courseId}`),
 };
 
 export const achievementsAPI = {

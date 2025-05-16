@@ -49,7 +49,7 @@ function App() {
                 <Route path="/shop" element={<ProtectedRoute><ShopPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<div>Настройки (заглушка)</div>} />
                 <Route
-                    path="/lessons"
+                    path="/lessons/:courseId"
                     element={
                         <ProtectedRoute>
                             <LessonsPage />

@@ -76,18 +76,22 @@
   }
   
   .shop-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: var(--card-bg);
     border-radius: 20px;
     box-shadow: 0 0 20px var(--card-shadow-color);
     padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 100%;           /* важно, чтобы «минимум» от minmax мог сработать */
+    box-sizing: border-box;
   }
   
   .shop-img {
-    width: 200px;
-    height: 200px;
+    width: 100%;           /* занимаем всю ширину колонки */
+    height: auto;          /* сохраняем пропорции */
+    max-width: 200px;      /* но не больше 200px */
+    max-height: 200px;
     border-radius: 12px;
     object-fit: cover;
     margin-bottom: 10px;

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { authAPI } from "../../services/api";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import UserProfileCard from "../../components/UserProfileCard";
 import "./ShopPage.css";
 
 const ShopPage = () => {
-  // Заглушка профиля
-  const profileStub = { name: "Тигровый Лев", className: "1А Класс" };
-  const [profile, setProfile] = useState(profileStub);
+  const [profile, setProfile] = useState(null);
 
   // Заглушка товаров
   const itemsStub = Array.from({ length: 8 }, (_, i) => ({
@@ -17,9 +17,10 @@ const ShopPage = () => {
   const [items, setItems] = useState(itemsStub);
 
   useEffect(() => {
-    // Пример загрузки профиля и магазина
-    axios.get("/api/profile")
-      .then(({ data }) => setProfile({ name: data.name, className: data.className }))
+    authAPI.getProfile()
+      .then((res) => {
+        setProfile(res.data);
+      })
       .catch(() => {});
     axios.get("/api/shop/items")
       .then(({ data }) => Array.isArray(data) && setItems(data))
@@ -33,14 +34,11 @@ const ShopPage = () => {
       <main className="content shop-content">
         {/* Профиль */}
         <h1 className="section-title">Профиль</h1>
-
-<div className="profile-card">
-  <img src="/avatar.png" alt="Аватар" className="avatar-img" />
-  <div className="profile-info">
-    <h2 className="profile-name">{profile.name}</h2>
-    <p className="profile-class">{profile.className}</p>
-  </div>
-</div>
+        {profile ? (
+          <UserProfileCard first_name={profile.first_name} last_name={profile.last_name} school_class={profile.school_class} />
+        ) : (
+          <div>Загрузка...</div>
+        )}
 
         {/* Магазин */}
         <h2 className="section-title">Магазин</h2>

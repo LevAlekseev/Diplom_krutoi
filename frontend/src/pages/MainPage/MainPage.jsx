@@ -29,6 +29,7 @@ const MainPage = () => {
       .then(res => {
         const courseList = res.data.results || res.data;
         setCourses(courseList.map(course => ({
+          id: course.id,
           letter: course.title[0].toUpperCase(),
           name: course.title,
           color: COURSE_COLOR_MAP[course.title] || "#9d7dfc",
@@ -67,8 +68,8 @@ const MainPage = () => {
         <div className="courses">
           <h2>Мои курсы</h2>
           <div className="courses-grid">
-            {courses.map(({ letter, name, color }) => (
-              <CourseCard key={name} letter={letter} name={name} color={color} />
+            {courses.map(({ id, letter, name, color }) => (
+              <CourseCard key={id} id={id} letter={letter} name={name} color={color} />
             ))}
           </div>
         </div>
