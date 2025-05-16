@@ -9,12 +9,14 @@ import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import MainPage2 from './pages/MainPage2/MainPage2'
 import LessonsPage2 from './pages/LessonsPage2/LessonsPage2';
-import ConstrPage from './pages/ConstrPage/ConstrPage'
+import ConstrPage from './pages/ConstrPage/ConstrPage';
+import TeacherProfilePage from './pages/TeacherProfilePage/TeacherProfilePage';
 
 function App() {
   // return <LoginPage />;
   // return <ProfilePage />;
   // return <LessonsPage2 />;
-  return <ConstrPage />
+  // return <ConstrPage />
+  return <MainPage2 />
 }
 export default App;
