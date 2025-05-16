@@ -11,12 +11,14 @@ import MainPage2 from './pages/MainPage2/MainPage2'
 import LessonsPage2 from './pages/LessonsPage2/LessonsPage2';
 import ConstrPage from './pages/ConstrPage/ConstrPage';
 import TeacherProfilePage from './pages/TeacherProfilePage/TeacherProfilePage';
+import Classes from './pages/Classes/Classes'
 
 function App() {
   // return <LoginPage />;
   // return <ProfilePage />;
-  return <LessonsPage2 />;
+  return <Classes />;
   // return <ConstrPage />
   // return <MainPage2 />
+  // retutn <LevelsPage />
 }
 export default App;
