@@ -15,8 +15,8 @@ import TeacherProfilePage from './pages/TeacherProfilePage/TeacherProfilePage';
 function App() {
   // return <LoginPage />;
   // return <ProfilePage />;
-  // return <LessonsPage2 />;
+  return <LessonsPage2 />;
   // return <ConstrPage />
-  return <MainPage2 />
+  // return <MainPage2 />
 }
 export default App;

@@ -21,9 +21,9 @@
   .course-header .subject-avatar {
     width: 80px;
     height: 80px;
-    background: #9077f6;
+
     border-radius: 10px;
-    color: #ffe35c;
+
     font-size: 48px;
     font-weight: 700;
     display: flex;
@@ -38,6 +38,28 @@
     color: #333;
   }
   
+.addtasks{
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 5px 0 0 #c2ecff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 740px;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    margin: 0;
+    color: #333;
+    cursor: pointer;
+    font-family: var(--second-family);
+    outline: none;
+    border: none;
+    font: bold;
+  }
+
   h2 {
     font-size: 24px;
     color: #333;
