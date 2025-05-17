@@ -54,11 +54,18 @@ const ResultPage = () => {
             <div className="span">{result.score}</div>
           </div>
           
-          <div className="marks-info">
-            <p>Время: {result.time}</p>
-            <p>Очки: {result.points}</p>
-            <p>Валюта: {result.currency}</p>
-          </div>
+         <div className="marks-info">
+  <p>
+    Время: <span className="value">{result.time}</span>
+  </p>
+  <p>
+    Очки: <span className="value">{result.points}</span>
+  </p>
+  <p>
+    Валюта: <span className="value">{result.currency}</span>
+  </p>
+</div>
+
         </div>
 
         <button className="main-btn" onClick={() => window.location.href = "/"}>

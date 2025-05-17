@@ -212,6 +212,8 @@ input::placeholder {
     color: transparent;
 }
 
+
+
 @media (max-width: 768px) {
     .header-box {
         max-width: 360px;
