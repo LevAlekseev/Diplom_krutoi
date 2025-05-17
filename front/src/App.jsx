@@ -16,9 +16,10 @@ import Classes from './pages/Classes/Classes'
 function App() {
   // return <LoginPage />;
   // return <ProfilePage />;
-  return <Classes />;
+  // return <Classes />;
   // return <ConstrPage />
   // return <MainPage2 />
   // retutn <LevelsPage />
+  return <ExamplesInput/>
 }
 export default App;
