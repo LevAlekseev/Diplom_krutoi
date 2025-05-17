@@ -11,7 +11,8 @@ import MainPage2 from './pages/MainPage2/MainPage2'
 import LessonsPage2 from './pages/LessonsPage2/LessonsPage2';
 import ConstrPage from './pages/ConstrPage/ConstrPage';
 import TeacherProfilePage from './pages/TeacherProfilePage/TeacherProfilePage';
-import Classes from './pages/Classes/Classes'
+import Classes from './pages/Classes/Classes';
+import MarksPage from './pages/MarksPage/MarksPage'
 
 function App() {
   // return <LoginPage />;
@@ -20,6 +21,6 @@ function App() {
   // return <ConstrPage />
   // return <MainPage2 />
   // retutn <LevelsPage />
-  return <ExamplesInput/>
+  return <MarksPage/>
 }
 export default App;
