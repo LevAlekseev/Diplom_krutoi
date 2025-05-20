@@ -19,10 +19,10 @@ function App() {
   // return <LoginPage />;
   // return <ProfilePage />;
   // return <Classes />;
-  // return <ConstrPage />;
+  return <ConstrPage />;
   // return <MainPage2 />
   // retutn <LevelsPage />
   // return <MarksPage/>
-  return <SettingsPage />
+  // return <SettingsPage />
 }
 export default App;

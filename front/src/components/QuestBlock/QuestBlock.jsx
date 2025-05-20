@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import AutoTextarea from "../AutoTextarea/AutoTextarea";
 import "./QuestBlock.css";
 
 const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
@@ -49,17 +48,33 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setQuestion((prev) => {
-          const updated = { ...prev, image: reader.result };
-          onChange(id, updated);
-          return updated;
-        });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Допустимые MIME-типы
+    const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+    if (!validTypes.includes(file.type)) {
+      alert("Можно загружать только изображения в формате PNG или JPEG.");
+      e.target.value = null;
+      return;
     }
+
+    // Максимальный размер файла 2 Мб
+    const maxSizeMB = 2;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      alert(`Максимальный размер файла ${maxSizeMB} Мб.`);
+      e.target.value = null;
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setQuestion((prev) => {
+        const updated = { ...prev, image: reader.result };
+        onChange(id, updated);
+        return updated;
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -67,13 +82,13 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
       {/* Поле для текста задания */}
       <div className="form-item">
         <label htmlFor={`question-${id}`}>Задание</label>
-        <AutoTextarea
-  id={`question-${id}`}
-  value={question.text}
-  onChange={(e) => handleFieldChange("text")(e)}
-  placeholder="Введите задание"
-  className="form-textarea"
-/>
+        <input
+          type="text"
+          id={`question-${id}`}
+          placeholder="Введите задание"
+          value={question.text}
+          onChange={handleFieldChange("text")}
+        />
       </div>
 
       {/* Кастомный селектор типа задания */}
@@ -108,36 +123,19 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
       )}
 
       {/* Для тестового задания: четыре варианта */}
-      {question.type === "Тестовый" && question.variants && (
-        <>
-          {/* Первый вариант - правильный */}
-          <div className="form-item correct-variant">
-            <label htmlFor={`variant-${id}-0`}>Правильный вариант</label>
+      {question.type === "Тестовый" &&
+        question.variants?.map((variant, idx) => (
+          <div className="form-item" key={idx}>
+            <label htmlFor={`variant-${id}-${idx}`}>Вариант {idx + 1}</label>
             <input
               type="text"
-              id={`variant-${id}-0`}
-              placeholder="Введите правильный вариант"
-              value={question.variants[0]}
-              onChange={handleVariantChange(0)}
-              style={{ fontWeight: "bold", borderColor: "#4CAF50" }} // можно выделить стилем
+              id={`variant-${id}-${idx}`}
+              placeholder={`Введите вариант ${idx + 1}`}
+              value={variant}
+              onChange={handleVariantChange(idx)}
             />
           </div>
-
-          {/* Остальные варианты */}
-          {question.variants.slice(1).map((variant, idx) => (
-            <div className="form-item" key={idx + 1}>
-              <label htmlFor={`variant-${id}-${idx + 1}`}>Вариант {idx + 1}</label>
-              <input
-                type="text"
-                id={`variant-${id}-${idx + 1}`}
-                placeholder={`Введите вариант ${idx + 1}`}
-                value={variant}
-                onChange={handleVariantChange(idx + 1)}
-              />
-            </div>
-          ))}
-        </>
-      )}
+        ))}
 
       {/* Блок загрузки картинки */}
       <div
@@ -152,7 +150,7 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
         )}
         <input
           type="file"
-          accept="image/*"
+          accept=".png, .jpeg, .jpg"
           ref={inputRef}
           onChange={handleFileChange}
           style={{ display: "none" }}
