@@ -17,13 +17,24 @@ const TaskPage = () => {
 
   const [task, setTask] = useState(taskStub);
   const [answer, setAnswer] = useState("");
+  const [timeLeft, setTimeLeft] = useState(600); // 10 минут в секундах
 
-//   useEffect(() => {
-//     axios
-//       .get("/api/task/4")
-//       .then((res) => setTask(res.data))
-//       .catch((err) => console.warn("Ошибка загрузки задания, используем stub:", err));
-//   }, []);
+  useEffect(() => {
+    // Заглушка загрузки
+    setTask(taskStub);
+
+    const timerId = setInterval(() => {
+      setTimeLeft((t) => (t > 0 ? t - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   const handleSubmit = () => {
     axios
@@ -40,6 +51,7 @@ const TaskPage = () => {
       <div className="header-box">
         <button className="back-btn">&lt;</button>
         <div className="title">{task.title}</div>
+        <div className="timer">{formatTime(timeLeft)}</div>
       </div>
 
       <div className="task-container">

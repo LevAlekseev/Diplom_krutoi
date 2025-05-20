@@ -76,6 +76,7 @@
         font-size: 20px;
         text-align: center;
         cursor: pointer;
+        margin-top: 5px;
       
   }
   
@@ -223,6 +224,17 @@
   .purple {
     background-color: #9C27B0;
   }
+  .header-box .timer {
+  margin-left: auto;
+  font-family: var(--second-family);
+  font-size: 18px;
+  color: var(--text-color);
+  padding-right: 20px;
+  font-family: var(--second-family);
+  font-size: 32px;
+  font-weight: bold;
+}
+
   
   /* Adaptive */
   @media (max-width: 768px) {
@@ -253,5 +265,17 @@
       font-size: 24px;
       height: 80px;
     }
+
+      .header-box .timer {
+  margin-left: auto;
+  font-family: var(--second-family);
+  font-size: 18px;
+  color: var(--text-color);
+  padding-right: 20px;
+  font-family: var(--second-family);
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
   }
   

@@ -9,6 +9,7 @@ import ExamplesPage from './pages/ExamplesPage/ExamplesPage';
 import ExamplesInput from './pages/ExamplesPage/ExamplesInput';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ShopPage from './pages/ShopPage/ShopPage';
+import MarksPage from './pages/MarksPage/MarksPage';
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute = ({ children }) => {
@@ -77,6 +78,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <ExamplesInput />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/marks"
+                    element={
+                        <ProtectedRoute>
+                            <MarksPage />
                         </ProtectedRoute>
                     }
                 />

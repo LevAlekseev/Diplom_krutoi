@@ -122,3 +122,13 @@ class SchoolClass(models.Model):
 
     def __str__(self):
         return self.name
+
+class UserAnswer(models.Model):
+    testresult = models.ForeignKey('TestResult', on_delete=models.CASCADE, related_name='useranswers')
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='useranswers')
+    answer_text = models.TextField(blank=True, null=True)
+    answer = models.ForeignKey('Answer', on_delete=models.SET_NULL, blank=True, null=True, related_name='useranswers')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Ответ на {self.question_id} (результат {self.testresult_id})"

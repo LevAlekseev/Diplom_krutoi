@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Course, Test, Question, Answer, TestResult, Achievement, UserAchievement
+from .models import Course, Test, Question, Answer, TestResult, Achievement, UserAchievement, UserAnswer
 from .serializers import (
     RegisterSerializer, CourseSerializer, CourseSubscribeSerializer,
     TestSerializer, TestResultSerializer, AchievementSerializer,
@@ -139,6 +139,7 @@ class PassTestView(BaseAPIView):
         data = request.data
         mode = data.get("mode")
         answers = data.get("answers", {})
+        time_spent = data.get("time_spent_seconds", 0)
 
         if TestResult.objects.filter(student=request.user, test=test).exists():
             raise ValidationError('Вы уже проходили этот тест')
@@ -146,42 +147,56 @@ class PassTestView(BaseAPIView):
         if not mode or mode not in ['fast', 'slow', 'normal']:
             raise ValidationError('Неверный режим прохождения теста')
 
-        base_time = test.time_limit_minutes * 60
-        multiplier = {"fast": 1.2, "slow": 0.8, "normal": 1.0}[mode]
-        time_limit = int(base_time * {"fast": 0.8, "slow": 1.2, "normal": 1.0}[mode])
-
+        base_time = test.time_limit_minutes or 10
+        total_questions = test.questions.count()
         correct = 0
-        for q_id, a_id in answers.items():
+        for q_id, a_value in answers.items():
             try:
-                answer = Answer.objects.get(pk=a_id)
-                if answer.is_correct:
-                    correct += 1
-            except Answer.DoesNotExist:
+                question = Question.objects.get(pk=q_id)
+                if question.type == 'text':
+                    correct_answer = question.answers.filter(is_correct=True).first()
+                    if correct_answer and str(a_value).strip().lower() == correct_answer.text.strip().lower():
+                        correct += 1
+                else:
+                    answer = Answer.objects.get(pk=a_value)
+                    if answer.is_correct:
+                        correct += 1
+            except (Answer.DoesNotExist, Question.DoesNotExist):
                 continue
 
-        total = test.questions.count()
-        score = int(test.points * multiplier * (correct / total))
-        coins = int(test.coins * multiplier * (correct / total))
-
+        score = int((correct / total_questions) * test.points) if total_questions else 0
         result = TestResult.objects.create(
             test=test,
             student=request.user,
-            time_spent_seconds=time_limit,
+            time_spent_seconds=time_spent,
             correct_answers=correct,
             mode=mode,
             score_awarded=score,
-            coins_awarded=coins
+            coins_awarded=test.coins
         )
 
-        # Проверка достижений
-        passed_count = TestResult.objects.filter(student=request.user).count()
-        for achievement in Achievement.objects.filter(test_count_required__lte=passed_count):
-            UserAchievement.objects.get_or_create(user=request.user, achievement=achievement)
+        for q_id, a_value in answers.items():
+            try:
+                question = Question.objects.get(pk=q_id)
+                if question.type == 'text':
+                    UserAnswer.objects.create(
+                        testresult=result,
+                        question=question,
+                        answer_text=a_value or ""
+                    )
+                else:
+                    UserAnswer.objects.create(
+                        testresult=result,
+                        question=question,
+                        answer_id=a_value
+                    )
+            except Question.DoesNotExist:
+                continue
 
         return Response({
-            "correct": correct,
-            "total": total,
-            "score_awarded": score,
-            "coins_awarded": coins,
-            "message": "Тест успешно пройден"
+            "score": correct,
+            "total": total_questions,
+            "points": score,
+            "coins": test.coins,
+            "time": time_spent
         })

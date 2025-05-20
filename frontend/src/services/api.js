@@ -36,6 +36,7 @@ export const testsAPI = {
     passTest: (testId, data) => api.post(`/tests/${testId}/pass/`, data),
     getMyResults: () => api.get('/my-results/'),
     getByCourse: (courseId) => api.get(`/tests/?course_id=${courseId}`),
+    getById: (id) => api.get(`/tests/${id}/`),
 };
 
 export const achievementsAPI = {

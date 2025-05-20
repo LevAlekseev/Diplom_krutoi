@@ -1,86 +1,171 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import ExampleImage from "../../assets/images/b1c78b52-6309-486f-a88f-8c3a1bd3944e.jpg";
+import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { testsAPI } from "../../services/api";
+import Input from "../../components/Input/Input";
 import "./ExamplesPage.css";
 
-const TaskPage = () => {
-  const task1 = {
-    id: 4,
-    title: "название теста",
-    number: 4,
-    description:
-      "Найдите угол между высотой BH и биссектрисой BD. В треугольнике ABC углы A и C равны 40° и 60° соответственно.",
-    progress: 50,
-    image: {ExampleImage},
-    options: [
-      { label: "20%", value: "20%", color: "blue" },
-      { label: "10%", value: "10%", color: "yellow" },
-      { label: "5%", value: "5%", color: "pink" },
-      { label: "52%", value: "52%", color: "purple" },
-    ],
-  };
+const MODE_MAP = {
+  easy: "slow",
+  normal: "normal",
+  hard: "fast"
+};
 
-  const [task, setTask] = useState(task1);
+const ExamplesPage = () => {
+  const [searchParams] = useSearchParams();
+  const testId = searchParams.get("test");
+  const level = searchParams.get("level") || "easy";
+  const navigate = useNavigate();
+
+  const [test, setTest] = useState(null);
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [inputValue, setInputValue] = useState("");
+  const [timeLeft, setTimeLeft] = useState(600);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const timerRef = useRef();
+  const startTimeRef = useRef(Date.now());
 
   useEffect(() => {
-    axios
-      .get("/api/task/4")
-      .then((res) => {
-        // Предполагаем, что res.data имеет ту же структуру, включая options
-        setTask(res.data);
+    setLoading(true);
+    testsAPI.getById(testId)
+      .then(res => {
+        setTest(res.data);
+        const base = (res.data.time_limit_minutes || 10) * 60;
+        let t = base;
+        if (level === "easy") t = Math.round(base * 1.2);
+        if (level === "hard") t = Math.round(base * 0.8);
+        setTimeLeft(t);
+        startTimeRef.current = Date.now();
+        setLoading(false);
       })
-      .catch((err) => console.error("Ошибка загрузки задания:", err));
-  }, []);
+      .catch(() => {
+        setError("Ошибка загрузки теста");
+        setLoading(false);
+      });
+  }, [testId, level]);
 
-  const handleAnswer = (value) => {
-    axios
-      .post("/api/task/answer", {
-        taskId: task.id,
-        answer: value,
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setTimeLeft((t) => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          handleFinish();
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+    // eslint-disable-next-line
+  }, [test]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  if (loading) return <div className="container">Загрузка...</div>;
+  if (error || !test) return <div className="container">{error || "Тест не найден"}</div>;
+
+  const questions = test.questions || [];
+  const question = questions[current];
+  const progress = Math.round(((current + 1) / questions.length) * 100);
+
+  const handleOption = (questionId, answerId) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+    setInputValue("");
+    if (current < questions.length - 1) {
+      setCurrent((i) => i + 1);
+    } else {
+      handleFinish({ ...answers, [questionId]: answerId });
+    }
+  };
+
+  const handleText = (questionId) => {
+    if (!inputValue.trim()) return;
+    setAnswers((prev) => ({ ...prev, [questionId]: inputValue.trim() }));
+    if (current < questions.length - 1) {
+      setCurrent((i) => i + 1);
+      setInputValue("");
+    } else {
+      handleFinish({ ...answers, [questionId]: inputValue.trim() });
+    }
+  };
+
+  const handleFinish = (finalAnswers = null) => {
+    const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
+    testsAPI.passTest(testId, {
+      mode: MODE_MAP[level],
+      answers: finalAnswers || answers,
+      time_spent_seconds: timeSpent,
+    })
+      .then((res) => {
+        navigate(
+          `/marks?score=${res.data.score}&total=${res.data.total}&points=${res.data.points}&coins=${res.data.coins}&time=${formatTime(res.data.time)}`
+        );
       })
-      .then(() => console.log("Ответ отправлен: ", value))
-      .catch((err) => console.error("Ошибка отправки ответа:", err));
+      .catch((err) => {
+        let msg = "Ошибка отправки результатов. Попробуйте ещё раз.";
+        if (err.response && err.response.data && typeof err.response.data === "object") {
+          msg += "\n" + JSON.stringify(err.response.data);
+        }
+        setError(msg);
+      });
   };
 
   return (
     <div className="container">
       <div className="header-box">
-        <button className="back-btn">&lt;</button>
-        <div className="title">{task1.title}</div>
+        <button className="back-btn" onClick={() => navigate(-1)}>&lt;</button>
+        <div className="title">{test.title}</div>
+        <div className="timer">{formatTime(timeLeft)}</div>
       </div>
-
       <div className="task-container">
         <div className="progress-bar-wrapper">
-          <div
-            className="progress-bar"
-            style={{ width: `${task1.progress}%` }}
-          ></div>
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
         </div>
-
         <div className="task-content">
-          {task1.image && (
-            <img src={task1.image} alt="Task" className="task-img" />
+          {question.image && (
+            <img src={question.image} alt="Task" className="task-img" />
           )}
           <div className="task-description">
-            <h2>Задача {task1.number}</h2>
-            <p>{task1.description}</p>
+            <h2>Вопрос {current + 1}</h2>
+            <p>{question.text}</p>
           </div>
         </div>
-
         <div className="options">
-          {task1.options.map((option, index) => (
-            <div
-              key={index}
-              className={`option-btn ${option.color}`}
-              onClick={() => handleAnswer(option.value)}
-            >
-              {option.label}
-            </div>
-          ))}
+          {question.type === "text" ? (
+            <>
+              <Input
+                type="text"
+                placeholder="Введите ответ..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="option-input"
+                onKeyDown={(e) => e.key === "Enter" && handleText(question.id)}
+              />
+              <button className="submit-btn" onClick={() => handleText(question.id)}>
+                Отправить
+              </button>
+            </>
+          ) : (
+            question.answers && question.answers.map((option, idx) => (
+              <div
+                key={option.id}
+                className={`option-btn ${["blue", "yellow", "pink", "purple"][idx % 4]}`}
+                onClick={() => handleOption(question.id, option.id)}
+              >
+                {option.text}
+              </div>
+            ))
+          )}
         </div>
+        {error && <div style={{color: 'red', marginTop: 20, fontSize: 18}}>{error}</div>}
       </div>
     </div>
   );
 };
 
-export default TaskPage;
+export default ExamplesPage;
