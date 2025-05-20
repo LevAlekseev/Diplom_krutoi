@@ -13,14 +13,16 @@ import ConstrPage from './pages/ConstrPage/ConstrPage';
 import TeacherProfilePage from './pages/TeacherProfilePage/TeacherProfilePage';
 // import Classes from './pages/Classes/Classes';
 // import MarksPage from './pages/MarksPage/MarksPage'
+import SettingsPage from './pages/SettingsPage/SettingsPage'
 
 function App() {
   // return <LoginPage />;
   // return <ProfilePage />;
   // return <Classes />;
-  return <ConstrPage />
+  // return <ConstrPage />;
   // return <MainPage2 />
   // retutn <LevelsPage />
   // return <MarksPage/>
+  return <SettingsPage />
 }
 export default App;
