@@ -1,76 +1,179 @@
-:root {
-    --font-family: 'Montserrat', sans-serif;
-    --second-family: 'Comfortaa', cursive;
-  }
+/* Глобальные стили для всего курса */
+.course-page {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Заголовок курса */
+.course-header {
+  display: flex;
+  align-items: center;
+  font-family: 'Comfortaa', sans-serif !important;
+  gap: 10px; /* Уменьшаем отступ между иконкой и текстом */
+  margin-bottom: 20px;
+  padding-left: 0 !important;
+}
+
+/* Иконка с буквой */
+.subject-avatar {
+  width: 80px; /* Восстанавливаем размер для ПК */
+  height: 80px;
+  color: rgba(255, 255, 255, 0.85);
+  background-color: #ccc;
+  border-radius: 10px;
+  font-size: 48px; /* Восстанавливаем размер шрифта для ПК */
+  font-family: 'Comfortaa', sans-serif !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 -10px 0 0 rgba(0, 0, 0, 0.2); /* Оставляем тень */
+}
+
+/* Название предмета */
+.course-title {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'Comfortaa', cursive !important; /* Изменяем на Comfortaa */
+  color: #333;
+  margin: 0;
+}
+
+/* Блок с тестами */
+.tasks-section {
+  width: 100%;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+/* Сетка тестов */
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Фиксируем 2 колонки */
+  gap: 20px;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: 'Comfortaa', sans-serif !important;
+}
 
 
-  .course-page {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    font-family: var(--second-family);
-    width: 100%;
-  }
-  
-  .course-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .course-header .subject-avatar {
-    width: 80px;
-    height: 80px;
-    color: rgba(255, 255, 255, 0.85);
-    border-radius: 10px;
+/* Если тест один */
+.tasks-grid--single {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
 
-    font-size: 48px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 -10px 0 0 rgba(0, 0, 0, 0.2);
+.tasks-grid--single .task-card {
+  flex: 0 0 49.15%;
+  max-width: 49.15%;
+}
+
+/* Карточка теста */
+.task-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Comfortaa', sans-serif !important;
+}
+
+.task-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Заголовок теста */
+.task-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  word-break: break-word;
+  font-family: 'Comfortaa', sans-serif !important;
+}
+
+.task-info {
+  color: #888;
+  font-size: 14px;
+  font-family: 'Comfortaa', sans-serif !important;
+}
+
+/* Кнопка решать */
+.solve-btn {
+  background-color: #6a4dff;
+  border: none;
+  padding: 10px 16px;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: auto;
+  font-family: 'Comfortaa', sans-serif !important;
+  transition: background-color 0.3s ease;
+}
+
+.solve-btn:hover:not(.solve-btn-disabled) {
+  background-color: #3a1ccf;
+}
+
+.solve-btn-disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+@media (max-width: 768px) {
+  /* Убираем все отступы и позиционирование по левому краю */
+  .course-page,
+  .course-header,
+  .tasks-section,
+  .tasks-grid,
+  .tasks-grid--single {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
   }
-  
+
+  /* Иконка и заголовок */
+  .subject-avatar {
+    width: 60px; /* Уменьшаем размер для мобилки */
+    height: 60px;
+    font-size: 36px; /* Уменьшаем размер шрифта для мобилки */
+  }
+
   .course-header h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #333;
-  }
-  
-  h2 {
     font-size: 24px;
-    color: #333;
+    font-family: 'Comfortaa', cursive !important;
   }
-  
-  .tasks-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 740px));
-    gap: 20px;
-    box-sizing: border-box;
-  }
-  
-  @media (max-width: 768px) {
 
-  
-    .course-header .subject-avatar {
-      width: 60px;
-      height: 60px;
-      font-size: 36px;
-    }
-  
-    .course-header h1 {
-      font-size: 28px;
-      align-items: center;
-      
-    }
-  
-    h2 {
-      font-size: 20px;
-    }
-  
-    .tasks-grid {
-      grid-template-columns: 1fr;
-    }
+  /* Добавляем отступ между иконкой и тестами */
+  .tasks-section {
+    margin-top: 20px; /* Отступ между заголовком и тестами */
+    margin-bottom: 20px; /* Отступ между заголовком и тестами */
   }
-  
+
+  /* Карточки тестов — растягиваются на всю ширину */
+  .task-card {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-top: 10px; /* Отступ между заголовком и тестами */
+  }
+
+  /* Все элементы — без лишних отступов */
+  .course-header,
+  .tasks-section,
+  .tasks-grid {
+    grid-template-columns: 1fr; /* Одна колонка на мобильных */
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

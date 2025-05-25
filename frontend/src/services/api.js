@@ -43,4 +43,5 @@ export const achievementsAPI = {
     getMyAchievements: () => api.get('/my-achievements/'),
 };
 
+
 export default api; 

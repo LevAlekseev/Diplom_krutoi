@@ -1,0 +1,307 @@
+:root {
+    --font-family: 'Montserrat', sans-serif;
+    --second-family: 'Comfortaa', cursive;
+  }
+  
+  .profile-content {
+    background: #eef8eb;
+    border-radius: 22px;
+    padding: 30px;
+
+  }
+  
+  .profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 22px;
+    box-shadow: inset 0 -10px 0 0 #c2ecff;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .avatar-img {
+    width: 200px;
+    height: 200px;
+    border-radius: 20px;
+    object-fit: cover;
+  }
+  
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .profile-name {
+    font-family: var(--second-family);
+    font-size: 28px;
+    color: #333;
+    margin: 0;
+  }
+  
+  .profile-class {
+    font-family: var(--font-family);
+    font-size: 16px;
+    color: #777;
+    margin: 0;
+  }
+  
+  .section-title {
+    font-size: 22px;
+    font-family: var(--second-family);
+    color: #333;
+
+    text-align: left;
+  }
+  
+  .stats-block {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: inset 0 -10px 0 0 #c2ecff;
+    padding: 20px;
+    margin-bottom: 10px;
+    max-width: 600px;
+  }
+  
+/* Цвета для разных оценок */
+.grade-5 {
+    background-color: #4CAF50;  /* зелёный */
+    color: #fff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+  }
+  .grade-4 {
+    background-color: #CDDC39;  /* салатово-жёлтый */
+    color: #333;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+  }
+  .grade-3 {
+    background-color: #FF9800;  /* оранжевый */
+    color: #fff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+  }
+  .grade-2 {
+    background-color: #F44336;  /* красный */
+    color: #fff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+  }
+  
+
+  .stat {
+    text-align: center;
+    flex: 1;
+  }
+  
+  .layout {
+    background-color: #6a4dff;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+
+  }
+  
+  .stat-label {
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .diary-block {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: inset 0 -10px 0 0 #c2ecff;
+    max-width: 600px;
+    width: 100%;
+
+  }
+  
+  .diary-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+  }
+  
+  .diary-subject {
+    flex: 1;
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .diary-grades {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  
+
+  .content {
+    flex: 1;
+    margin: 20px;
+    background: var(--content-bg);
+    border-radius: 22px;
+    padding: 30px;
+    overflow-y: auto;
+    gap: 15px;}
+
+/* Топ класса */
+.top-block {
+    font-family: var(--second-family);
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: inset 0 -10px 0 0 #c2ecff;
+    padding: 10px;
+    max-width: 860px;
+    width: 100%;
+
+  }
+  
+  .top-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+
+  }
+  
+  .top-row:last-child {
+    border-bottom: none;
+  }
+  
+  .top-rank {
+    display: inline-block;
+    width: 32px;
+    text-align: center;
+    font-weight: bold;
+    margin-right: 12px;
+    border-radius: 50%;
+    color: var(--text-color);
+  }
+  
+  .top-name {
+    font-size: 14px;
+    color: var(--text-color);
+  }
+  
+  /* Специальное оформление для первых трёх мест */
+  .top-1 .top-rank {
+    font-size: 20px; /* +5 от базового 27 */
+    background: #FFD700;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  .top-1 .top-name {
+    font-size: 20px;
+    background: #FFD700;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  .top-2 .top-rank {
+    font-size: 20px; /* +3 от базового 27 */
+    background: #C0C0C0;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  .top-2 .top-name {
+    font-size: 18px;
+    background: #C0C0C0;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  .top-3 .top-rank {
+    font-size: 18px; /* +1 от базового 27 */
+    background: #CD7F32;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  .top-3 .top-name {
+    font-size: 18px;
+    background: #CD7F32;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  /* Базовые прямоугольники для списка топа */
+  .top-row .top-rank,
+  .top-row .top-name {
+    border-radius: 4px;
+    padding: 4px 8px;
+      font-family: var(--second-family);
+  }
+
+  @media (max-width: 768px) {
+    .profile-card,
+    .stats-block,
+    .diary-block {
+      padding: 15px;
+      margin: 10px 0;
+    }
+  
+    .profile-name {
+      font-size: 20px;
+    }
+  
+    .stat-value {
+      font-size: 20px;
+    }
+  
+    .diary-subject {
+      font-size: 12px;
+    }
+  
+    .grade {
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+     .diary-row, .stat, .profile-card {
+        padding: 15px;
+      
+      }
+      .top-row { padding: 7px;}
+
+      .top-name, .top-rank, .section-title, .grade {
+        font-weight: bold;
+      }
+  }
+  

@@ -24,13 +24,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=150)
     patronymic = models.CharField(max_length=150, blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
     school_class = models.CharField(max_length=10, choices=[
         ("1А", "1А"), ("1Б", "1Б"), ("1В", "1В"),
         ("2А", "2А"), ("2Б", "2Б"), ("2В", "2В"),
     ], default="1А")
     role = models.CharField(max_length=10, choices=[('student', 'Ученик'), ('teacher', 'Учитель')], default='student')
     teacher_classes = models.ManyToManyField('SchoolClass', blank=True, related_name='teachers')
+    avatar_url = models.CharField(max_length=512, blank=True, null=True)
+    shop_items = models.JSONField(default=list, blank=True, null=True)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
@@ -39,6 +40,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username or self.email
+
+    def initialize_shop_items(self, items_count=8):
+        if self.role == 'student' and (not self.shop_items or len(self.shop_items) == 0):
+            self.shop_items = [False] * items_count
+            self.save()
 
 class Course(models.Model):
     title = models.CharField(max_length=255)

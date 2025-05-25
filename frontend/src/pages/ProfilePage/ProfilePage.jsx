@@ -3,6 +3,7 @@ import { authAPI } from "../../services/api";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import UserProfileCard from "../../components/UserProfileCard";
 import "./ProfilePage.css";
+import defaultAvatar from "../../assets/images/avatar1.png";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState(null);
@@ -26,7 +27,7 @@ const ProfilePage = () => {
       <Sidebar />
       <main className="content profile-content">
         <h1 className="section-title">Профиль</h1>
-        <UserProfileCard first_name={profile.first_name} last_name={profile.last_name} school_class={profile.school_class} />
+        <UserProfileCard first_name={profile.first_name} last_name={profile.last_name} school_class={profile.school_class} avatar={defaultAvatar}  />
         <h2 className="section-title">Достижения</h2>
         <div className="stats-block">
           <div className="stat">

@@ -10,6 +10,7 @@ import ExamplesInput from './pages/ExamplesPage/ExamplesInput';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import MarksPage from './pages/MarksPage/MarksPage';
+import SettingsPage from './pages/SettingsPage/SettingsPage';
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute = ({ children }) => {
@@ -48,7 +49,7 @@ function App() {
                     }
                 />
                 <Route path="/shop" element={<ProtectedRoute><ShopPage /></ProtectedRoute>} />
-                <Route path="/settings" element={<div>Настройки (заглушка)</div>} />
+                <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 <Route
                     path="/lessons/:courseId"
                     element={

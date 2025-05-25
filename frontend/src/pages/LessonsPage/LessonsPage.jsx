@@ -1,39 +1,72 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import TaskCard from "../../components/Lessons/Lesson";
-import { coursesAPI, testsAPI } from "../../services/api";
 import "./LessonsPage.css";
 
+// Импорт API
+import { coursesAPI, testsAPI } from "../../services/api";
+
 const COURSE_COLOR_MAP = {
-  Русский:    "rgb(157, 125, 252)",
+  Русский: "rgb(157, 125, 252)",
   Математика: "#f48fb1",
-  История:    "#81d4fa",
-  Биология:   "#7986cb",
-  Физика:     "#c5e1a5",
-  Химия:      "#ef9a9a",
-  География:  "#ce93d8",
+  История: "#81d4fa",
+  Биология: "#7986cb",
+  Физика: "#c5e1a5",
+  Химия: "#ef9a9a",
+  География: "#ce93d8",
   Английский: "#81c784",
-  Чтение:     "#FFD700",
-  Рисование:  "#FFB347",
+  Чтение: "#FFD700",
+  Рисование: "#FFB347",
 };
 
 const LessonsPage = () => {
   const { courseId } = useParams();
-  const [course, setCourse] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const [course, setCourse] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [completedTests, setCompletedTests] = useState(new Set());
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    setLoading(true);
+    let isMounted = true;
+
+    // Получаем курс
     coursesAPI.getById(courseId)
-      .then(res => setCourse(res.data))
-      .catch(() => setCourse(null));
+      .then(res => {
+        if (isMounted) setCourse(res.data);
+      })
+      .catch(() => {
+        if (isMounted) setCourse(null);
+      });
+
+    // Получаем тесты по курсу
     testsAPI.getByCourse(courseId)
-      .then(res => setTasks(res.data.results || res.data))
-      .catch(() => setTasks([]))
-      .finally(() => setLoading(false));
+      .then(res => {
+        const testsData = res.data?.results || res.data;
+        if (isMounted) setTasks(testsData);
+      })
+      .catch(() => {
+        if (isMounted) setTasks([]);
+      });
+
+    // Получаем результаты пользователя
+    testsAPI.getMyResults()
+      .then(res => {
+        const resultsData = res.data?.results || res.data;
+        const completedIds = new Set(resultsData.map(result => result.test.id));
+        if (isMounted) setCompletedTests(completedIds);
+      })
+      .catch(() => {
+        if (isMounted) setCompletedTests(new Set());
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [courseId]);
 
   if (loading) return <div>Загрузка...</div>;
@@ -46,29 +79,41 @@ const LessonsPage = () => {
       <Sidebar />
       <div className="content">
         <div className="course-page">
+          {/* Заголовок курса с иконкой */}
           <div className="course-header">
             <div className="subject-avatar" style={{ background: color }}>
               {course.title ? course.title[0] : "?"}
             </div>
             <h1>{course.title}</h1>
           </div>
-          <h2>Задания:</h2>
-          <div className="tasks-grid">
-            {tasks.length === 0 && <div>Нет тестов для этого курса</div>}
-            {tasks.map(({ id, title, deadline, points, coins }) => (
-              <div className="task-card" key={id}>
-                <div className="task-title" style={{ fontWeight: "bold" }}>{title}</div>
-                <div style={{ color: "#888" }}>
-                  Дедлайн: {deadline ? deadline.slice(0, 10) : "-"}
-                </div>
-                <div style={{ color: "#888" }}>
-                  Баллы: {points} | Монеты: {coins}
-                </div>
-                <button className="solve-btn" onClick={() => navigate(`/levels?test=${id}`)}>
-                  Решать
-                </button>
-              </div>
-            ))}
+
+          {/* Блок с тестами */}
+          <div className="tasks-section">
+            <div
+              className={`tasks-grid ${tasks.length === 1 ? "tasks-grid--single" : ""}`}
+            >
+              {tasks.map((test) => {
+                const isCompleted = completedTests.has(test.id);
+                return (
+                  <div className="task-card" key={test.id}>
+                    <div className="task-title">{test.title}</div>
+                    <div className="task-info">
+                      Дедлайн: {test.deadline ? test.deadline.slice(0, 10) : "-"}
+                    </div>
+                    <div className="task-info">
+                      Баллы: {test.points} | Монеты: {test.coins}
+                    </div>
+                    <button
+                      className={`solve-btn ${isCompleted ? "solve-btn-disabled" : ""}`}
+                      onClick={() => !isCompleted && navigate(`/levels?test=${test.id}`)}
+                      disabled={isCompleted}
+                    >
+                      {isCompleted ? "Пройдено" : "Решать"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -77,4 +122,3 @@ const LessonsPage = () => {
 };
 
 export default LessonsPage;
-    

@@ -1,0 +1,276 @@
+:root {
+    --font-family: 'Montserrat', sans-serif;
+    --second-family: 'Comfortaa', cursive;
+  }
+  
+  /* ОБЩИЙ КОНТЕНТ */
+  .content {
+    display: flex;
+    
+    flex-direction: column;
+    gap: 30px;
+    align-items: start;/* Выравниваем всё содержимое по центру */
+  }
+  
+  /* ВЕРХ - Аватар и Привет */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 860px;
+  }
+  
+  .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+  
+  .header h1 {
+    font-family: var(--second-family);
+    font-size: 28px;
+    color: #333;
+  }
+  
+  /* Блок Недавние */
+  .recent,
+  .courses {
+    width: 100%;
+    max-width: 860px;
+    margin-bottom: 20px;
+  }
+  
+  .recent h2,
+  .courses h2 {
+    font-family: var(--second-family);
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  /* Недавние задание */
+  .recent-wrapper {
+    width: 100%;
+    max-width: 860px;
+  }
+  
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .subject-avatar {
+    width: 150px;
+    height: 151px;
+    border-radius: 10px;
+    font-size: 96px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -10px 0 0 rgba(0, 0, 0, 0.2);
+    font-family: var(--second-family);
+  }
+  
+  .recent-text-block {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: inset 0 -10px 0 0 #c2ecff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: var(--second-family);
+    max-width: 860px;
+    width: 100%;
+  }
+  
+  .recent-text-block h3 {
+    margin-bottom: 16px;
+    font-size: 22px;
+    color: #333;
+  }
+  
+  .recent-text-block p {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .recent-text-block .status {
+    margin-top: 16px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #999;
+  }
+
+  .stats-block {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 860px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: inset 0 -10px 0 0 #c2ecff;
+    font-family: var(--second-family);
+  }
+  
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color, #333);
+  }
+  
+  .stat-label {
+    font-size: 14px;
+    color: #666;
+  }
+
+  
+  /* Блок Все курсы */
+ /* .courses-wrapper {
+    width: 100%;
+    max-width: 860px;
+  }
+  
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 20px; 
+    width: 100%;
+  }
+  
+  
+  .course-card {
+    background: none;
+    border-radius: 20px;
+    padding: 0;
+    text-align: center;
+  }
+  
+  .course-avatar {
+    width: 200px;
+    height: 210px;
+    margin: 0 auto;
+    background: #9d7dfc;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--second-family);
+    color: white;
+    gap: 5px;
+    padding: 5px;
+    box-shadow: inset 0 -10px 0 0 rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+  }
+  
+  .course-letter {
+    font-size: 150px;
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.25);
+  }
+  
+  .course-name {
+    font-size: 20px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
+    margin-top: -20px;
+  }
+  
+
+  .course-avatar:hover {
+    transform: scale(1.05);
+  }
+  .courses-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+  }
+  */
+  /* Адаптив */
+  @media (max-width: 768px) {
+    .header h1 {
+      font-size: 24px;
+    }
+  
+    .recent-item {
+          align-items: flex-start;
+    }
+  
+    .subject-avatar {
+      width: 120px;
+      height: 120px;
+      font-size: 48px;
+    }
+  
+    .recent-text-block {
+      width: 100%;
+      height: auto;
+      padding: 15px;
+    }
+  
+    .recent-text-block h3 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+  
+    .recent-text-block p {
+      font-size: 12px;
+    }
+  
+    .recent-text-block .status {
+      font-size: 12px;
+      margin-top: 10px;
+    }
+  
+    .courses-grid {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+    }
+  
+    .course-avatar {
+      width: 160px;
+      height: 170px;
+    }
+  
+    .course-letter {
+      font-size: 120px;
+    }
+  
+    .course-name {
+      font-size: 18px;
+      margin-top: -15px;
+    }
+
+    .stats-block {
+        gap: 15px;
+        padding: 15px;
+      }
+    
+      .stat-value {
+        font-size: 20px;
+      }
+    
+      .stat-label {
+        font-size: 12px;
+      }
+  }
+  
+  

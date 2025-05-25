@@ -165,6 +165,12 @@ class PassTestView(BaseAPIView):
                 continue
 
         score = int((correct / total_questions) * test.points) if total_questions else 0
+        # Корректировка баллов в зависимости от режима
+        if mode == 'fast':
+            score = int(score * 1.2)
+        elif mode == 'slow':
+            score = int(score * 0.8)
+        # normal — без изменений
         result = TestResult.objects.create(
             test=test,
             student=request.user,
