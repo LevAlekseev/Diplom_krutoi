@@ -95,6 +95,7 @@ class TestResult(models.Model):
     mode = models.CharField(max_length=10, choices=[('normal', 'Normal'), ('fast', 'Fast'), ('slow', 'Slow')])
     score_awarded = models.IntegerField()
     coins_awarded = models.IntegerField()
+    grade = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.student.username} - {self.test.title}"

@@ -43,7 +43,12 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = ProfileSerializer(request.user)
+        user = request.user
+        if user.role == 'student' and (not user.shop_items or len(user.shop_items) == 0):
+            from django.conf import settings
+            user.shop_items = [False] * getattr(settings, 'SHOP_ITEMS_COUNT', 8)
+            user.save()
+        serializer = ProfileSerializer(user)
         return Response(serializer.data)
 
 # Курсы
@@ -171,6 +176,18 @@ class PassTestView(BaseAPIView):
         elif mode == 'slow':
             score = int(score * 0.8)
         # normal — без изменений
+        if total_questions > 0:
+            percent = correct / total_questions
+            if percent >= 0.9:
+                grade = 5
+            elif percent >= 0.7:
+                grade = 4
+            elif percent >= 0.5:
+                grade = 3
+            else:
+                grade = 2
+        else:
+            grade = 0
         result = TestResult.objects.create(
             test=test,
             student=request.user,
@@ -178,7 +195,8 @@ class PassTestView(BaseAPIView):
             correct_answers=correct,
             mode=mode,
             score_awarded=score,
-            coins_awarded=test.coins
+            coins_awarded=test.coins,
+            grade=grade
         )
 
         for q_id, a_value in answers.items():

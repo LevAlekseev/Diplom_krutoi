@@ -193,7 +193,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         return f"- / {len(classmates_points)}"
 
     def get_diary(self, obj):
-        # Для каждого курса, на который записан ученик, подтянуть оценки (результаты тестов)
         diary = []
         enrollments = Enrollment.objects.filter(student=obj)
         for enroll in enrollments:
@@ -201,12 +200,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             tests = Test.objects.filter(course=course)
             grades = []
             for test in tests:
-                result = TestResult.objects.filter(test=test, student=obj).first()
+                result = TestResult.objects.filter(test=test, student=obj).order_by('-completed_at').first()
                 if result:
-                    grades.append(result.score_awarded)
+                    grades.append(result.grade)
             diary.append({
                 'subject': course.title,
-                'grades': grades
+                'grades': grades  # все оценки по всем тестам предмета
             })
         return diary
 

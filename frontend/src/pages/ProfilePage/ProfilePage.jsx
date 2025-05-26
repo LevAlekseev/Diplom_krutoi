@@ -49,17 +49,11 @@ const ProfilePage = () => {
             <div className="diary-row" key={i}>
               <div className="diary-subject">{row.subject || "\u00A0"}</div>
               <div className="diary-grades">
-                {(row.grades || []).map((grade, j) => {
-                  let mark = 2;
-                  if (grade >= 90) mark = 5;
-                  else if (grade >= 70) mark = 4;
-                  else if (grade >= 50) mark = 3;
-                  return (
-                    <span className={`grade grade-${mark}`} key={j}>
-                      {mark}
-                    </span>
-                  );
-                })}
+                {(row.grades || []).map((grade, j) => (
+                  <span className={`grade grade-${grade}`} key={j}>
+                    {grade}
+                  </span>
+                ))}
               </div>
             </div>
           ))}
