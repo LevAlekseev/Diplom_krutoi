@@ -43,5 +43,10 @@ export const achievementsAPI = {
     getMyAchievements: () => api.get('/my-achievements/'),
 };
 
+export const teacherAPI = {
+    getMyCourses: () => api.get('/courses/'), // курсы, где user — teacher
+    getMyClasses: () => api.get('/classes/'),
+    getNotifications: () => api.get('/notifications/'),
+};
 
 export default api; 

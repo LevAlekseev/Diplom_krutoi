@@ -1,28 +1,40 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import "./Classes.css";
+import api from "../../services/api";
+import { useLocation, useParams } from "react-router-dom";
 
 const ClassRankingPage = () => {
   const [sortMode, setSortMode] = useState("points");
   const [students, setStudents] = useState([]);
+  const { classId } = useParams();
 
   useEffect(() => {
-    // TODO: заменить на реальный запрос к API
-    const stub = [
-      { id: 1, name: "Иванов Иван", points: 95 },
-      { id: 2, name: "Петров Петр", points: 88 },
-      { id: 3, name: "Сидорова Мария", points: 102 },
-      { id: 4, name: "Козлова Анна", points: 76 },
-      { id: 5, name: "Новиков Алексей", points: 88 },
-    ];
-    setStudents(stub);
-  }, []);
+    if (!classId) return;
+    api.get(`/classes/${classId}/students/`)
+      .then(res => {
+        setStudents(res.data.results || res.data);
+      })
+      .catch(() => setStudents([]));
+  }, [classId]);
 
-  const sorted = [...students].sort((a, b) => {
+  // Преобразуем данные: фамилия и имя отдельно (фамилия всегда первая, остальное — имя)
+  const studentsWithSplit = students.map((stu) => {
+    const parts = stu.name.trim().split(' ');
+    const lastName = parts[parts.length - 1];
+    const firstName = parts.slice(0, -1).join(' ');
+    return {
+      ...stu,
+      lastName,
+      firstName,
+    };
+  });
+
+  const sorted = [...studentsWithSplit].sort((a, b) => {
     if (sortMode === "points") {
-      return b.points - a.points || a.name.localeCompare(b.name);
+      return b.points - a.points || a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName);
     } else {
-      return a.name.localeCompare(b.name);
+      return a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName);
     }
   });
 
@@ -53,7 +65,7 @@ const ClassRankingPage = () => {
               className={`top-row ${sortMode === "points" ? `top-${index + 1}` : ""}`}
             >
               <span className="top-rank">{index + 1}</span>
-              <span className="top-name">{stu.name}</span>
+              <span className="top-name">{stu.lastName} {stu.firstName}</span>
               <span className="top-points">{stu.points} баллов</span>
             </div>
           ))}

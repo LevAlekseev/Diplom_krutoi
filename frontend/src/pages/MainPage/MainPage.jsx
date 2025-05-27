@@ -4,7 +4,7 @@ import "./MainPageContentCSS.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import CourseCard from "../../components/CourseCard/CourseCard";
 import { useAuth } from "../../contexts/AuthContext";
-import { coursesAPI } from "../../services/api";
+import { coursesAPI, teacherAPI } from "../../services/api";
 
 const COURSE_COLOR_MAP = {
   "Русский": "#9d7dfc",
@@ -25,8 +25,16 @@ const MainPage = () => {
   const [coursesLoading, setCoursesLoading] = useState(true);
 
   useEffect(() => {
-    coursesAPI.getMyCourses()
-      .then(res => {
+    if (!user) return;
+    const fetchCourses = async () => {
+      setCoursesLoading(true);
+      try {
+        let res;
+        if (user.role === 'teacher') {
+          res = await teacherAPI.getMyCourses();
+        } else {
+          res = await coursesAPI.getMyCourses();
+        }
         const courseList = res.data.results || res.data;
         setCourses(courseList.map(course => ({
           id: course.id,
@@ -34,19 +42,27 @@ const MainPage = () => {
           name: course.title,
           color: COURSE_COLOR_MAP[course.title] || "#9d7dfc",
         })));
-      })
-      .catch(() => setCourses([]))
-      .finally(() => setCoursesLoading(false));
-  }, []);
+      } catch {
+        setCourses([]);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+    fetchCourses();
+  }, [user]);
 
   if (loading || !user || coursesLoading) return <div>Загрузка...</div>;
+
+  // Для учителя — другое приветствие
+  const isTeacher = user.role === 'teacher';
+  const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
 
   return (
     <div className="layout">
       <Sidebar />
       <main className="content">
         <div className="header">
-          <h1>Привет, {user.first_name ? user.first_name : (user.username || user.email)}</h1>
+          <h1>{isTeacher ? `Здравствуйте, ${fullName}` : `Привет, ${user.first_name ? user.first_name : (user.username || user.email)}`}</h1>
         </div>
         <div className="recent">
           <h2>Достижения</h2>
@@ -66,7 +82,7 @@ const MainPage = () => {
           </div>
         </div>
         <div className="courses">
-          <h2>Мои курсы</h2>
+          <h2>{isTeacher ? 'Курсы, которые вы ведёте' : 'Мои курсы'}</h2>
           <div className="courses-grid">
             {courses.map(({ id, letter, name, color }) => (
               <CourseCard key={id} id={id} letter={letter} name={name} color={color} />

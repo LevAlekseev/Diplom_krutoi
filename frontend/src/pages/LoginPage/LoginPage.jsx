@@ -27,11 +27,7 @@ const LoginPage = () => {
                 username: formData.username,
                 password: formData.password,
             });
-            if (userData.role === 'teacher') {
-                navigate("/main2");
-            } else {
-                navigate("/main");
-            }
+            navigate("/main");
         } catch (err) {
             console.error(err);
             setError("Неверная почта, логин или пароль");

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import TaskCard from "../../components/Lessons2/Lesson2";
+// import TaskCard from "../../components/Lessons2/Lesson2";
 import "./LessonsPage2.css";
 
 const COURSE_COLOR_MAP = {
@@ -17,6 +17,8 @@ const COURSE_COLOR_MAP = {
   Чтение:     "#FFD700",
   Рисование:  "#FFB347",
 };
+
+const TaskCard = () => <div>Заглушка TaskCard (Lesson2)</div>;
 
 const LessonsPage = () => {
   // Заглушка: обычно приходит из MainPage через Link state

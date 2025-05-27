@@ -33,19 +33,13 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         const response = await authAPI.login(credentials);
-        const { access, refresh } = response.data;
+        const { access, refresh, role } = response.data;
         localStorage.setItem('token', access);
         localStorage.setItem('refreshToken', refresh);
         localStorage.setItem('lastUsername', credentials.username);
-        try {
-            const profile = await authAPI.getProfile();
-            setUser(profile.data);
-            return profile.data;
-        } catch (e) {
-            // Если профиль не загрузился, сохраняем хотя бы username
-            setUser({ username: credentials.username });
-            return { username: credentials.username };
-        }
+        localStorage.setItem('role', role);
+        setUser({ username: credentials.username, role });
+        return { username: credentials.username, role };
     };
 
     const register = async (data) => {

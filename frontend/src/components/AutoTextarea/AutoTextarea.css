@@ -1,0 +1,17 @@
+
+.form-textarea {
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--input-border-color);
+  background: var(--input-background);
+  box-shadow: inset 0 4px 10px 0 rgba(0,0,0,0.1);
+  font-family: var(--font-family);
+  box-sizing: border-box;
+}
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--button-hover-color);
+}

@@ -163,19 +163,29 @@ class TestCreateSerializer(serializers.ModelSerializer):
         
         return test
 
+class SchoolClassShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User.teacher_classes.rel.model
+        fields = ['id', 'name']
+
 class ProfileSerializer(serializers.ModelSerializer):
     coins = serializers.SerializerMethodField()
     points = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     diary = serializers.SerializerMethodField()
     top = serializers.SerializerMethodField()
+    teacher_classes = SchoolClassShortSerializer(many=True, read_only=True)
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 'school_class',
-            'coins', 'points', 'rating', 'diary', 'top'
+            'coins', 'points', 'rating', 'diary', 'top', 'shop_items', 'teacher_classes', 'avatar_url'
         ]
+
+    def get_avatar_url(self, obj):
+        return obj.avatar_url or '/avatar-teacher.png'
 
     def get_coins(self, obj):
         return sum(r.coins_awarded for r in obj.test_results.all())

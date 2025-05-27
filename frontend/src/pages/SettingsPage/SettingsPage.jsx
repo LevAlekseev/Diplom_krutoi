@@ -15,10 +15,12 @@ import class3 from "../../assets/images/class3.png";
 import class4 from "../../assets/images/class4.png";
 import defaultAvatar from "../../assets/images/avatar1.png";
 import { useNavigate } from "react-router-dom";
+import { authAPI } from "../../services/api"; // ✅ Исправлено
 
 const SettingsPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
   const itemsStub = [
     { id: 1, image: name1, cost: 100, label: 'Тигров Лев (розовый)' },
     { id: 2, image: name2, cost: 100, label: 'Тигров Лев (красный)' },
@@ -29,13 +31,26 @@ const SettingsPage = () => {
     { id: 7, image: class3, cost: 100, label: '1А Класс (чёрный)' },
     { id: 8, image: class4, cost: 100, label: '1А Класс (красный)' },
   ];
+
   const [items, setItems] = useState(itemsStub);
+  const [shopItemsStatus, setShopItemsStatus] = useState([]); // ✅ Новое состояние
 
   useEffect(() => {
     axios.get("/api/shop/items")
       .then(({ data }) => Array.isArray(data) && setItems(data))
       .catch(() => {});
-  }, []);
+
+    if (user) {
+      authAPI.getProfile()
+        .then(res => {
+          const shop_items = res.data?.shop_items;
+          setShopItemsStatus(shop_items || []);
+        })
+        .catch(err => {
+          console.error("Ошибка при получении данных о покупках", err);
+        });
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -53,17 +68,27 @@ const SettingsPage = () => {
             last_name={user.last_name}
             school_class={user.school_class}
             avatar={defaultAvatar}
+            role={user.role}
           />
         )}
         <h2 className="section-title">Инвентарь</h2>
         <div className="shop-grid">
-          {items.map(({ id, image, cost, label }) => (
-            <div className="shop-item" key={id}>
-              <img src={image} alt={label} className="shop-img" />
-              <div style={{textAlign: 'center', fontSize: 14, margin: '6px 0'}}>{label}</div>
-              <button className="buy-btn">Использовать</button>
-            </div>
-          ))}
+          {items.map(({ id, image, cost, label }) => {
+            const isBought = shopItemsStatus[id - 1] === true;
+
+            return (
+              <div className="shop-item" key={id}>
+                <img src={image} alt={label} className="shop-img" />
+                <div style={{ textAlign: 'center', fontSize: 14, margin: '6px 0' }}>{label}</div>
+                <button
+                  className="buy-btn"
+                  disabled={!isBought}
+                >
+                  {isBought ? 'Использовать' : 'Не куплено'}
+                </button>
+              </div>
+            );
+          })}
         </div>
         <button className="logout-btn" onClick={handleLogout}>
           Выйти из аккаунта

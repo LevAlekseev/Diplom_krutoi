@@ -9,7 +9,8 @@ import img4 from "../../assets/svg/interface-user-circle--circle-geometric-human
 
 const Sidebar = () => {
     const { user } = useAuth();
-    const profilePath = user?.role === 'teacher' ? '/profile2' : '/profile';
+    const isTeacher = user?.role === 'teacher';
+    const profilePath = '/profile';
 
     return (
         <>
@@ -18,7 +19,11 @@ const Sidebar = () => {
                 <nav>
                     <ul>
                         <li><Link to="/main">Главная</Link></li>
-                        <li><Link to="/shop">Магазин</Link></li>
+                        {isTeacher ? (
+                            <li><Link to="/constructor">Конструктор</Link></li>
+                        ) : (
+                            <li><Link to="/shop">Магазин</Link></li>
+                        )}
                         <li><Link to={profilePath}>Профиль</Link></li>
                         <li><Link to="/settings">Настройки</Link></li>
                     </ul>
@@ -26,7 +31,11 @@ const Sidebar = () => {
             </aside>
             <div className="mobile-nav">
                 <Link to="/main"><img src={img2} alt="Задания" /></Link>
-                <Link to="/shop"><img src={img3} alt="Магазин" /></Link>
+                {isTeacher ? (
+                    <Link to="/constructor"><img src={img3} alt="Конструктор" /></Link>
+                ) : (
+                    <Link to="/shop"><img src={img3} alt="Магазин" /></Link>
+                )}
                 <Link to={profilePath}><img src={img4} alt="Профиль" /></Link>
                 <Link to="/settings"><img src={img1} alt="Настройки" /></Link>
             </div>

@@ -8,14 +8,16 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Course, Test, Question, Answer, TestResult, Achievement, UserAchievement, UserAnswer
+from .models import Course, Test, Question, Answer, TestResult, Achievement, UserAchievement, UserAnswer, CustomUser, SchoolClass
 from .serializers import (
     RegisterSerializer, CourseSerializer, CourseSubscribeSerializer,
     TestSerializer, TestResultSerializer, AchievementSerializer,
     TestCreateSerializer, UserSerializer, ProfileSerializer
 )
 from .api_config import StandardResultsSetPagination, CourseFilter, TestFilter
+from .token_serializers import MyTokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -224,3 +226,22 @@ class PassTestView(BaseAPIView):
             "coins": test.coins,
             "time": time_spent
         })
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+class ClassStudentListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, class_id):
+        school_class = SchoolClass.objects.get(id=class_id)
+        students = CustomUser.objects.filter(school_class=school_class.name, role='student')
+        data = []
+        for student in students:
+            points = sum(r.score_awarded for r in student.test_results.all())
+            data.append({
+                'id': student.id,
+                'name': f"{student.first_name} {student.last_name}",
+                'points': points,
+            })
+        return Response(data)

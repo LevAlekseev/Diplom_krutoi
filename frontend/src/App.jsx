@@ -11,6 +11,11 @@ import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import MarksPage from './pages/MarksPage/MarksPage';
 import SettingsPage from './pages/SettingsPage/SettingsPage';
+import MainPage2 from './pages/MainPage2/MainPage2';
+import TeacherProfilePage from './pages/TeacherProfilePage/TeacherProfilePage';
+import LessonsPage2 from './pages/LessonsPage2/LessonsPage2';
+import ClassRankingPage from './pages/Classes/Classes';
+import ConstrPage from './pages/ConstrPage/ConstrPage';
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute = ({ children }) => {
@@ -28,6 +33,8 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+    const { user } = useAuth();
+    const role = user?.role || localStorage.getItem('role');
     return (
         <Router>
             <Routes>
@@ -36,7 +43,7 @@ function App() {
                     path="/main"
                     element={
                         <ProtectedRoute>
-                            <MainPage />
+                            {role === 'teacher' ? <MainPage2 /> : <MainPage />}
                         </ProtectedRoute>
                     }
                 />
@@ -44,17 +51,18 @@ function App() {
                     path="/profile"
                     element={
                         <ProtectedRoute>
-                            <ProfilePage />
+                            {role === 'teacher' ? <TeacherProfilePage /> : <ProfilePage />}
                         </ProtectedRoute>
                     }
                 />
                 <Route path="/shop" element={<ProtectedRoute><ShopPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                <Route path="/constructor" element={<ProtectedRoute><ConstrPage /></ProtectedRoute>} />
                 <Route
                     path="/lessons/:courseId"
                     element={
                         <ProtectedRoute>
-                            <LessonsPage />
+                            {role === 'teacher' ? <LessonsPage2 /> : <LessonsPage />}
                         </ProtectedRoute>
                     }
                 />
@@ -87,6 +95,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <MarksPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/classes/:classId"
+                    element={
+                        <ProtectedRoute>
+                            <ClassRankingPage />
                         </ProtectedRoute>
                     }
                 />
