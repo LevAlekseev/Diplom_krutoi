@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
-// import TaskCard from "../../components/Lessons2/Lesson2";
+import { useParams, useNavigate } from "react-router-dom";
+import { coursesAPI, testsAPI } from "../../services/api";
+import TaskCard from "../../components/Lessons2/Lesson2";
 import "./LessonsPage2.css";
 
 const COURSE_COLOR_MAP = {
@@ -18,57 +20,28 @@ const COURSE_COLOR_MAP = {
   Рисование:  "#FFB347",
 };
 
-const TaskCard = () => <div>Заглушка TaskCard (Lesson2)</div>;
-
 const LessonsPage = () => {
-  // Заглушка: обычно приходит из MainPage через Link state
-  const [courseName, setCourseName] = useState("История");
+  const { courseId } = useParams();
+  const navigate = useNavigate();
+  const [courseName, setCourseName] = useState("");
   const [tasks, setTasks] = useState([]);
 
-  // Вычисляем букву и цвет
+  useEffect(() => {
+    if (!courseId) return;
+    coursesAPI.getById(courseId)
+      .then(res => setCourseName(res.data.title))
+      .catch(() => setCourseName("Курс"));
+    testsAPI.getByCourse(courseId)
+      .then(res => setTasks(res.data.results || res.data))
+      .catch(() => setTasks([]));
+  }, [courseId]);
+
   const letter = courseName.charAt(0).toUpperCase();
   const color = COURSE_COLOR_MAP[courseName] || "#cccccc";
-
-  useEffect(() => {
-    // Заглушка списка заданий
-    setTasks([
-      {
-        id: 1,
-        title: "Название теста 1",
-        description: "ЖИ ШИ пиши с буквой И. Часть 1",
-        status: "Статус: срочно или не завершен",
-      },
-      {
-        id: 2,
-        title: "Название теста 2",
-        description: "Правописание приставок. Часть 2",
-        status: "Статус: не решен",
-      },
-      {
-        id: 3,
-        title: "Название теста 3",
-        description: "Разбор статистики по тексту. Часть 3",
-        status: "Статус: срочно",
-      },
-      {
-        id: 4,
-        title: "Название теста 4",
-        description: "Синонимы и антонимы. Часть 4",
-        status: "Статус: завершен",
-      },
-      {
-        id: 5,
-        title: "Название теста 5",
-        description: "Пунктуация: запятые. Часть 5",
-        status: "Статус: не решен",
-      },
-    ]);
-  }, []);
 
   return (
     <div className="layout">
       <Sidebar />
-
       <main className="content">
         <div className="course-page">
           <div className="course-header">
@@ -84,7 +57,10 @@ const LessonsPage = () => {
           <h2 className="section-title">Задания:</h2>
 
           <div className="tasks-grid">
-            <button class="addtasks"><h3>Добавить тест</h3></button>
+            <button className="addtasks" onClick={() => navigate(`/constructor?courseId=${courseId}`)}>
+              <h3>Добавить тест</h3>
+            </button>
+            {tasks.length === 0 && <div>Нет тестов для этого курса</div>}
             {tasks.map(({ id, title, description, status }) => (
               <TaskCard
                 key={id}

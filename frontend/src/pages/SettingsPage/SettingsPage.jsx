@@ -21,6 +21,8 @@ const SettingsPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  console.log('USER В НАСТРОЙКАХ:', user); // ОТЛАДКА
+
   const itemsStub = [
     { id: 1, image: name1, cost: 100, label: 'Тигров Лев (розовый)' },
     { id: 2, image: name2, cost: 100, label: 'Тигров Лев (красный)' },
@@ -61,7 +63,6 @@ const SettingsPage = () => {
     <div className="layout">
       <Sidebar />
       <main className="content shop-content">
-        <h1 className="section-title">Профиль</h1>
         {user && (
           <UserProfileCard
             first_name={user.first_name}

@@ -1,25 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { teacherAPI } from "../../services/api";
 import QuestionBlock from "../../components/QuestBlock/QuestBlock";
 
 import "./ConstrPage.css";
 
 const ConstructorPage = () => {
-  // Заглушка списка предметов
-  const [subjects, setSubjects] = useState([
-    "Русский",
-    "Математика",
-    "История",
-    "Физика",
-    "Химия",
-    "Биология",
-    "География",
-    "Английский",
-  ]);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
+  // Курсы учителя
+  const [subjects, setSubjects] = useState([]);
   // Метаданные теста
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
-  const [time, setTime] = useState(""); // будет строка с минутами, например "15"
+  const [time, setTime] = useState(""); // строка с минутами
   const [points, setPoints] = useState(0);
 
   // Список вопросов
@@ -27,10 +23,23 @@ const ConstructorPage = () => {
     { id: 1, text: "", type: "Письменный", answer: "", variant: "" },
   ]);
 
-  // Варианты времени (10, 15, 20, 25, 30)
-  const timeOptions = [10, 15, 20, 25, 30];
+  useEffect(() => {
+    teacherAPI.getMyCourses()
+      .then(res => {
+        const courseList = res.data.results || res.data;
+        setSubjects(courseList.map(course => course.title));
+      })
+      .catch(() => setSubjects([]));
+  }, []);
 
   const handleMetaChange = (setter) => (e) => setter(e.target.value);
+
+  // Валидация времени
+  const handleTimeChange = (e) => {
+    let val = e.target.value.replace(/[^0-9]/g, "");
+    if (val !== "" && (+val > 120 || +val < 1)) val = "";
+    setTime(val);
+  };
 
   const handleQuestionChange = (id, updated) => {
     setQuestions((qs) => qs.map((q) => (q.id === id ? { ...q, ...updated } : q)));
@@ -52,7 +61,7 @@ const ConstructorPage = () => {
       <main className="content">
         <div className="container">
           <div className="header-box">
-            <button className="back-btn">&lt;</button>
+            <button className="back-btn" onClick={() => navigate(-1)}>&lt;</button>
             <h1>Создание тестов</h1>
             <div className="footer-btns">
               <button className="publish-btn" onClick={handlePublish}>
@@ -95,21 +104,14 @@ const ConstructorPage = () => {
 
               <div className="form-item">
                 <label htmlFor="time">Время (минуты)</label>
-                <select
+                <input
+                  type="text"
                   id="time"
+                  placeholder="Введите время (1-120)"
                   value={time}
-                  onChange={handleMetaChange(setTime)}
-                  className="custom-select"
-                >
-                  <option value="" disabled>
-                    Выберите время
-                  </option>
-                  {timeOptions.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+                  onChange={handleTimeChange}
+                  maxLength={3}
+                />
               </div>
 
             </div>

@@ -126,11 +126,11 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
       {question.type === "Тестовый" &&
         question.variants?.map((variant, idx) => (
           <div className="form-item" key={idx}>
-            <label htmlFor={`variant-${id}-${idx}`}>Вариант {idx + 1}</label>
+            <label htmlFor={`variant-${id}-${idx}`}>{idx === 0 ? 'Верный ответ' : 'Неверный ответ'}</label>
             <input
               type="text"
               id={`variant-${id}-${idx}`}
-              placeholder={`Введите вариант ${idx + 1}`}
+              placeholder={`Введите ${idx === 0 ? 'верный' : 'неверный'} ответ`}
               value={variant}
               onChange={handleVariantChange(idx)}
             />

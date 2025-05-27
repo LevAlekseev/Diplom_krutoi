@@ -13,7 +13,9 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             authAPI.getProfile()
                 .then(response => {
-                    setUser(response.data);
+                    // Берём роль из профиля или из localStorage
+                    const role = response.data.role || localStorage.getItem('role');
+                    setUser({ ...response.data, role });
                 })
                 .catch(() => {
                     // Если профиль не загрузился, но токен есть, сохраняем хотя бы username
@@ -38,8 +40,11 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('refreshToken', refresh);
         localStorage.setItem('lastUsername', credentials.username);
         localStorage.setItem('role', role);
-        setUser({ username: credentials.username, role });
-        return { username: credentials.username, role };
+        // После логина сразу подгружаем полный профиль
+        const profile = await authAPI.getProfile();
+        const userData = { ...profile.data, role: profile.data.role || role };
+        setUser(userData);
+        return userData;
     };
 
     const register = async (data) => {
