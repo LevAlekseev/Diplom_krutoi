@@ -96,11 +96,13 @@ const ExamplesPage = () => {
 
   const handleFinish = (finalAnswers = null) => {
     const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
-    testsAPI.passTest(testId, {
-      mode: MODE_MAP[level],
+    const submitData = {
+      mode: MODE_MAP[level] || 'normal',
       answers: finalAnswers || answers,
       time_spent_seconds: timeSpent,
-    })
+    };
+    console.log('Отправляемые данные теста:', submitData);
+    testsAPI.passTest(testId, submitData)
       .then((res) => {
         navigate(
           `/marks?score=${res.data.score}&total=${res.data.total}&points=${res.data.points}&coins=${res.data.coins}&time=${formatTime(res.data.time)}`
@@ -109,6 +111,7 @@ const ExamplesPage = () => {
       .catch((err) => {
         let msg = "Ошибка отправки результатов. Попробуйте ещё раз.";
         if (err.response && err.response.data && typeof err.response.data === "object") {
+          console.error('Ошибка при отправке результатов:', err.response.data);
           msg += "\n" + JSON.stringify(err.response.data);
         }
         setError(msg);

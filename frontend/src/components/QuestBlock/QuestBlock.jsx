@@ -11,35 +11,32 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
 
   const handleFieldChange = (field) => (e) => {
     const value = e.target.value;
-    setQuestion((prev) => {
-      const updated = { ...prev, [field]: value };
-      onChange(id, updated);
-      return updated;
-    });
+    const { id: _, ...rest } = question;  // Исключаем id из обновленных данных
+    const updated = { ...rest, [field]: value };
+    setQuestion({ ...question, [field]: value });  // Для локального состояния сохраняем id
+    onChange(id, updated);
   };
 
   const selectType = (type) => () => {
-    setQuestion((prev) => {
-      const updated = { ...prev, type };
-      if (type === "Письменный") {
-        updated.variants = [];
-      } else if (type === "Тестовый" && (!prev.variants || prev.variants.length === 0)) {
-        updated.variants = ["", "", "", ""];
-      }
-      onChange(id, updated);
-      return updated;
-    });
+    const { id: _, ...rest } = question;  // Исключаем id из обновленных данных
+    const updated = { ...rest, type };
+    if (type === "Письменный") {
+      updated.variants = [];
+    } else if (type === "Тестовый" && (!question.variants || question.variants.length === 0)) {
+      updated.variants = ["", "", "", ""];
+    }
+    setQuestion({ ...question, ...updated });  // Для локального состояния сохраняем id
+    onChange(id, updated);
   };
 
   const handleVariantChange = (index) => (e) => {
     const val = e.target.value;
-    setQuestion((prev) => {
-      const variants = [...(prev.variants || ["", "", "", ""])];
-      variants[index] = val;
-      const updated = { ...prev, variants };
-      onChange(id, updated);
-      return updated;
-    });
+    const variants = [...(question.variants || ["", "", "", ""])];
+    variants[index] = val;
+    const { id: _, ...rest } = question;  // Исключаем id из обновленных данных
+    const updated = { ...rest, variants };
+    setQuestion({ ...question, variants });  // Для локального состояния сохраняем id
+    onChange(id, updated);
   };
 
   const handleImageClick = () => {
@@ -68,11 +65,9 @@ const QuestionBlock = ({ id, initial, onChange, onAddContent }) => {
 
     const reader = new FileReader();
     reader.onload = () => {
-      setQuestion((prev) => {
-        const updated = { ...prev, image: reader.result };
-        onChange(id, updated);
-        return updated;
-      });
+      const updated = { ...question, image: reader.result };
+      setQuestion(updated);
+      onChange(id, updated);
     };
     reader.readAsDataURL(file);
   };

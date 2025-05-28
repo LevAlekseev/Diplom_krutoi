@@ -20,19 +20,28 @@ const ConstructorPage = () => {
 
   // Список вопросов
   const [questions, setQuestions] = useState([
-    { id: 1, text: "", type: "Письменный", answer: "", variant: "" },
+    { id: 1, text: "", type: "Письменный", answer: "", variants: [] },
   ]);
 
   useEffect(() => {
     teacherAPI.getMyCourses()
       .then(res => {
         const courseList = res.data.results || res.data;
-        setSubjects(courseList.map(course => course.title));
+        console.log('Полученные курсы:', courseList);  // Для отладки
+        setSubjects(courseList);
       })
       .catch(() => setSubjects([]));
   }, []);
 
-  const handleMetaChange = (setter) => (e) => setter(e.target.value);
+  const handleMetaChange = (setter) => (e) => {
+    const value = e.target.value;
+    const fieldName = e.target.id;
+    console.log('Изменение поля:', fieldName);
+    console.log('Новое значение:', value);
+    console.log('Текущее название теста:', title);
+    console.log('Текущий предмет:', subject);
+    setter(value);
+  };
 
   // Валидация времени
   const handleTimeChange = (e) => {
@@ -48,12 +57,79 @@ const ConstructorPage = () => {
   const addQuestion = () => {
     setQuestions((qs) => [
       ...qs,
-      { id: qs.length + 1, text: "", type: "Письменный", answer: "", variant: "" },
+      { id: qs.length + 1, text: "", type: "Письменный", answer: "", variants: [] },
     ]);
   };
 
-  const handlePublish = () => {
-    console.log("Опубликовать тест", { title, subject, time, points, questions });
+  const handlePublish = async () => {
+    // Проверяем заполненность основных полей
+    if (!title.trim()) {
+      alert("Пожалуйста, введите название теста");
+      return;
+    }
+    if (!subject) {
+      alert("Пожалуйста, выберите предмет");
+      return;
+    }
+    if (!time) {
+      alert("Пожалуйста, укажите время на выполнение теста");
+      return;
+    }
+
+    // Проверяем, что все вопросы заполнены
+    const isQuestionsValid = questions.every(q => {
+      if (!q.text.trim()) {
+        alert(`Пожалуйста, заполните текст задания для вопроса ${q.id}`);
+        return false;
+      }
+      if (q.type === "Письменный" && !q.answer?.trim()) {
+        alert(`Пожалуйста, укажите ответ для письменного задания ${q.id}`);
+        return false;
+      }
+      if (q.type === "Тестовый" && !q.variants?.length) {
+        alert(`Пожалуйста, заполните все варианты ответов для тестового задания ${q.id}`);
+        return false;
+      }
+      return true;
+    });
+
+    if (!isQuestionsValid) return;
+
+    try {
+      // Автоматический расчет points: 10 базовых + 10 за каждый вопрос
+      const calculatedPoints = 10 + (questions.length * 10);
+
+      // 1. Создаем тест
+      const testData = {
+        title: title.trim(),
+        course_id: parseInt(subject),
+        time_limit_minutes: parseInt(time),
+        points: calculatedPoints,
+        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        coins: calculatedPoints,
+        questions: questions.map(({ id, ...q }) => ({  // Деструктурируем id, чтобы исключить его
+          text: q.text.trim(),
+          type: q.type === "Письменный" ? "text" : "choice",
+          answers: q.type === "Письменный" 
+            ? [{ text: q.answer.trim(), is_correct: true }]
+            : q.variants.map((variant, idx) => ({
+                text: variant.trim(),
+                is_correct: idx === 0
+              }))
+        }))
+      };
+
+      console.log('Отправляемые данные теста:', testData);  // Для отладки
+
+      const testResponse = await teacherAPI.createTest(testData);
+      const testId = testResponse.data.id;
+
+      alert("Тест успешно создан!");
+      navigate(-1);
+    } catch (error) {
+      console.error("Ошибка при создании теста:", error.response?.data || error.message);
+      alert(`Не удалось опубликовать тест: ${error.response?.data?.detail || 'Проверьте все поля и попробуйте снова'}`);
+    }
   };
 
   return (
@@ -94,9 +170,9 @@ const ConstructorPage = () => {
                   <option value="" disabled>
                     Выберите предмет
                   </option>
-                  {subjects.map((subj) => (
-                    <option key={subj} value={subj}>
-                      {subj}
+                  {subjects.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.title}
                     </option>
                   ))}
                 </select>

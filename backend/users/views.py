@@ -14,7 +14,8 @@ from .models import Course, Test, Question, Answer, TestResult, Achievement, Use
 from .serializers import (
     RegisterSerializer, CourseSerializer, CourseSubscribeSerializer,
     TestSerializer, TestResultSerializer, AchievementSerializer,
-    TestCreateSerializer, UserSerializer, ProfileSerializer
+    TestCreateSerializer, UserSerializer, ProfileSerializer,
+    QuestionSerializer, AnswerSerializer
 )
 from .api_config import StandardResultsSetPagination, CourseFilter, TestFilter
 from .token_serializers import MyTokenObtainPairSerializer
@@ -86,13 +87,17 @@ class MyCoursesViewSet(viewsets.ReadOnlyModelViewSet):
 
 # Тесты
 class TestViewSet(viewsets.ModelViewSet):
-    serializer_class = TestSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = TestFilter
     search_fields = ['title']
     ordering_fields = ['created_at', 'title']
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return TestCreateSerializer
+        return TestSerializer
 
     def get_queryset(self):
         course_id = self.request.query_params.get('course_id')
@@ -147,6 +152,11 @@ class PassTestView(BaseAPIView):
         mode = data.get("mode")
         answers = data.get("answers", {})
         time_spent = data.get("time_spent_seconds", 0)
+
+        print('Полученные данные:', data)  # Добавляем логирование
+        print('Режим:', mode)
+        print('Ответы:', answers)
+        print('Затраченное время:', time_spent)
 
         if TestResult.objects.filter(student=request.user, test=test).exists():
             raise ValidationError('Вы уже проходили этот тест')
@@ -245,3 +255,32 @@ class ClassStudentListView(APIView):
                 'points': points,
             })
         return Response(data)
+
+class QuestionViewSet(viewsets.ModelViewSet):
+    serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Question.objects.filter(test__teacher=self.request.user)
+
+    def perform_create(self, serializer):
+        test_id = self.request.data.get('test')
+        test = Test.objects.get(id=test_id)
+        if test.teacher != self.request.user:
+            raise PermissionDenied("Вы не можете добавлять вопросы в чужие тесты")
+        serializer.save()
+
+
+class AnswerViewSet(viewsets.ModelViewSet):
+    serializer_class = AnswerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Answer.objects.filter(question__test__teacher=self.request.user)
+
+    def perform_create(self, serializer):
+        question_id = self.request.data.get('question')
+        question = Question.objects.get(id=question_id)
+        if question.test.teacher != self.request.user:
+            raise PermissionDenied("Вы не можете добавлять ответы к чужим вопросам")
+        serializer.save()

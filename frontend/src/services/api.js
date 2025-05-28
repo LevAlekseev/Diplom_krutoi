@@ -33,10 +33,14 @@ export const coursesAPI = {
 
 export const testsAPI = {
     getAll: () => api.get('/tests/'),
-    passTest: (testId, data) => api.post(`/tests/${testId}/pass/`, data),
+    passTest: (testId, data) => {
+        console.log('Отправка результатов теста:', { testId, data });
+        return api.post(`/tests/${testId}/pass/`, data);
+    },
     getMyResults: () => api.get('/my-results/'),
     getByCourse: (courseId) => api.get(`/tests/?course_id=${courseId}`),
     getById: (id) => api.get(`/tests/${id}/`),
+    createTest: (data) => api.post('/tests/', data),
 };
 
 export const achievementsAPI = {
@@ -47,6 +51,9 @@ export const teacherAPI = {
     getMyCourses: () => api.get('/courses/'), // курсы, где user — teacher
     getMyClasses: () => api.get('/classes/'),
     getNotifications: () => api.get('/notifications/'),
+    createTest: (data) => api.post('/tests/', data),
+    createQuestion: (data) => api.post('/questions/', data),
+    createAnswer: (data) => api.post('/answers/', data),
 };
 
 export default api; 

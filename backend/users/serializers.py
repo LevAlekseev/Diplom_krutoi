@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
 from .models import Course, Test, Question, Answer, TestResult, Achievement, CustomUser, Enrollment
+from rest_framework import serializers
 
 User = get_user_model()
 
@@ -122,19 +123,23 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['text', 'type', 'answers']
+        extra_kwargs = {'id': {'read_only': True}}
 
 class TestCreateSerializer(serializers.ModelSerializer):
     questions = QuestionCreateSerializer(many=True)
+    course_id = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.all(),
+        source='course'
+    )
 
     class Meta:
         model = Test
-        fields = ['title', 'course', 'deadline', 'time_limit_minutes', 'points', 'coins', 'questions']
+        fields = ['title', 'course_id', 'deadline', 'time_limit_minutes', 'points', 'coins', 'questions']
+        extra_kwargs = {'id': {'read_only': True}}
 
     def validate(self, data):
         if data.get('time_limit_minutes', 0) <= 0:
             raise serializers.ValidationError("Время на выполнение теста должно быть положительным числом")
-        if data.get('points', 0) <= 0:
-            raise serializers.ValidationError("Количество баллов должно быть положительным числом")
         if data.get('coins', 0) < 0:
             raise serializers.ValidationError("Количество монет не может быть отрицательным")
         if not data.get('questions'):
@@ -143,16 +148,28 @@ class TestCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
+        # Автоматический расчет points: 10 базовых + 10 за каждый вопрос
+        validated_data['points'] = 10 + (len(questions_data) * 10)
         test = Test.objects.create(**validated_data)
+        
+        # Получаем максимальный ID вопроса из базы данных
+        max_question_id = Question.objects.all().order_by('-id').first()
+        next_question_id = (max_question_id.id + 1) if max_question_id else 1
         
         for question_data in questions_data:
             answers_data = question_data.pop('answers')
             if not answers_data:
                 raise serializers.ValidationError("Вопрос должен содержать хотя бы один ответ")
             
-            question = Question.objects.create(test=test, **question_data)
-            correct_answers = 0
+            # Создаем вопрос с новым ID
+            question = Question.objects.create(
+                id=next_question_id,
+                test=test, 
+                **question_data
+            )
+            next_question_id += 1
             
+            correct_answers = 0
             for answer_data in answers_data:
                 if answer_data.get('is_correct'):
                     correct_answers += 1
