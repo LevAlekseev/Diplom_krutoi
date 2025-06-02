@@ -60,7 +60,7 @@ const ShopPage = () => {
           <UserProfileCard
             first_name={profile.first_name}
             last_name={profile.last_name}
-            school_class={''}
+            school_class={'school_class'}
             avatar={defaultAvatar}
             role={'teacher'}
           />
